@@ -22,16 +22,15 @@ import com.troblecodings.signals.models.ModelInfoWrapper;
 
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.phys.AABB;
 import net.minecraftforge.client.model.data.IModelData;
 
 public class SignalTileEntity extends SyncableTileEntity implements NamableWrapper, ISyncable {
 
-    public float animProgress;
     protected final SignalAnimationHandler handler;
 
     public SignalTileEntity(final TileEntityInfo info) {
         super(info);
-        animProgress = 0.0F;
         this.handler = new SignalAnimationHandler(this);
     }
 
@@ -70,10 +69,6 @@ public class SignalTileEntity extends SyncableTileEntity implements NamableWrapp
         signal.renderOverlay(info.with(this));
     }
 
-    public void updateAnim() {
-        ++animProgress;
-    }
-
     @Override
     public String getNameWrapper() {
         final String name = super.getNameWrapper();
@@ -103,8 +98,8 @@ public class SignalTileEntity extends SyncableTileEntity implements NamableWrapp
 
     @Override
     public void requestModelDataUpdate() {
-        final Map<SEProperty, String> newProperties = ClientSignalStateHandler
-                .getClientStates(new StateInfo(level, worldPosition));
+        final Map<SEProperty, String> newProperties =
+                ClientSignalStateHandler.getClientStates(new StateInfo(level, worldPosition));
         handler.updateStates(newProperties, properties);
         this.properties.clear();
         this.properties.putAll(newProperties);
@@ -117,8 +112,9 @@ public class SignalTileEntity extends SyncableTileEntity implements NamableWrapp
             SignalStateHandler.addListener(new SignalStateInfo(level, worldPosition, getSignal()),
                     listener);
         } else {
-            if (getSignal().hasAnimation())
+            if (getSignal().hasAnimation()) {
                 handler.updateAnimationListFromBlock();
+            }
         }
     }
 
@@ -128,5 +124,13 @@ public class SignalTileEntity extends SyncableTileEntity implements NamableWrapp
             SignalStateHandler.removeListener(
                     new SignalStateInfo(level, worldPosition, getSignal()), listener);
         }
+    }
+
+    @Override
+    public AABB getRenderBoundingBox() {
+        if (handler.areAnimationsRunning())
+            return new AABB(getBlockPos().offset(-50, -50, -50), getBlockPos().offset(50, 50, 50));
+        else
+            return super.getRenderBoundingBox();
     }
 }
