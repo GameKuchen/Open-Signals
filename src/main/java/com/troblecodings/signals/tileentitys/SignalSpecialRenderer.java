@@ -32,9 +32,9 @@ public class SignalSpecialRenderer implements BlockEntityRenderer<SignalTileEnti
 
     @Override
     public boolean shouldRender(final SignalTileEntity tile, final Vec3 pos) {
-        if (tile.getSignal().hasAnimation())
-            return Vec3.atCenterOf(tile.getBlockPos()).multiply(1.0D, 0.0D, 1.0D).closerThan(
-                    pos.multiply(1.0D, 0.0D, 1.0D), ConfigHandler.CLIENT.renderDistance.get());
-        return BlockEntityRenderer.super.shouldRender(tile, pos);
+        return Vec3.atCenterOf(tile.getBlockPos()).multiply(1.0D, 0.0D, 1.0D).closerThan(
+                pos.multiply(1.0D, 0.0D, 1.0D),
+                tile.getSignal().hasAnimation() ? ConfigHandler.CLIENT.renderDistance.get()
+                        : getViewDistance());
     }
 }
