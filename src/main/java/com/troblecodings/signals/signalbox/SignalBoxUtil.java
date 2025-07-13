@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableList;
+import com.troblecodings.signals.OpenSignalsMain;
 import com.troblecodings.signals.config.ConfigHandler;
 import com.troblecodings.signals.core.ModeIdentifier;
 import com.troblecodings.signals.enums.EnumGuiMode;
@@ -25,6 +26,8 @@ public final class SignalBoxUtil {
     public static final int PREPARED_COLOR = ConfigHandler.CLIENT.signalboxPreparedColor.get();
     public static final int SHUNTING_COLOR = ConfigHandler.CLIENT.signalboxShuntingColor.get();
 
+    private static List<Point> debugPointList = new ArrayList<>();
+
     private SignalBoxUtil() {
     }
 
@@ -35,15 +38,14 @@ public final class SignalBoxUtil {
     }
 
     public static Rotation getRotationFromDelta(final Point delta) {
-        if (delta.getX() > 0) {
+        if (delta.getX() > 0)
             return Rotation.CLOCKWISE_180;
-        } else if (delta.getX() < 0) {
+        else if (delta.getX() < 0)
             return Rotation.NONE;
-        } else if (delta.getY() > 0) {
+        else if (delta.getY() > 0)
             return Rotation.COUNTERCLOCKWISE_90;
-        } else {
+        else
             return Rotation.CLOCKWISE_90;
-        }
     }
 
     public static class PathIdentifier {
@@ -95,12 +97,17 @@ public final class SignalBoxUtil {
             scores.remove(currentPath);
 
             final Point previousPoint = currentPath.getPoint();
+            debugPointList.add(previousPoint);
             final Point nextPoint = currentPath.path.point2;
             if (previousPoint.equals(p2)) {
                 final ArrayList<SignalBoxNode> nodes = new ArrayList<>();
                 for (Point point = previousPoint; point != null; point = closedList.get(point)) {
                     final SignalBoxNode boxNode = modeGrid.get(point);
                     nodes.add(boxNode);
+                }
+                if (OpenSignalsMain.isDebug()) {
+                    grid.sendDebugPointUpdates(debugPointList);
+                    debugPointList.clear();
                 }
                 result = PathwayRequestResult.PASS;
                 return result.setPathwayData(PathwayData.of(grid, nodes, pathType));
@@ -123,6 +130,10 @@ public final class SignalBoxUtil {
                     visited.add(pathIdent.path.getInverse());
                 }
             }
+        }
+        if (OpenSignalsMain.isDebug()) {
+            grid.sendDebugPointUpdates(debugPointList);
+            debugPointList.clear();
         }
         return result;
     }
@@ -209,10 +220,9 @@ public final class SignalBoxUtil {
 
     public static PathType getPathTypeFrom(final SignalBoxNode start, final SignalBoxNode end) {
         final List<PathType> possilbeTypes = start.getPossibleTypes(end);
-        if (!possilbeTypes.isEmpty()) {
+        if (!possilbeTypes.isEmpty())
             return possilbeTypes.get(0);
-        } else {
+        else
             return PathType.NONE;
-        }
     }
 }
