@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.ImmutableList;
-import com.troblecodings.signals.OpenSignalsMain;
 import com.troblecodings.signals.config.ConfigHandler;
 import com.troblecodings.signals.core.ModeIdentifier;
 import com.troblecodings.signals.enums.EnumGuiMode;
@@ -105,7 +104,7 @@ public final class SignalBoxUtil {
                     final SignalBoxNode boxNode = modeGrid.get(point);
                     nodes.add(boxNode);
                 }
-                if (OpenSignalsMain.isDebug()) {
+                if (ConfigHandler.GENERAL.debugMode.get()) {
                     grid.sendDebugPointUpdates(debugPointList);
                     debugPointList.clear();
                 }
@@ -131,7 +130,7 @@ public final class SignalBoxUtil {
                 }
             }
         }
-        if (OpenSignalsMain.isDebug()) {
+        if (ConfigHandler.GENERAL.debugMode.get()) {
             grid.sendDebugPointUpdates(debugPointList);
             debugPointList.clear();
         }
