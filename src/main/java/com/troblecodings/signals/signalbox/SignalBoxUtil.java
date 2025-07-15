@@ -205,7 +205,8 @@ public final class SignalBoxUtil {
             case END:
             case IN_CONNECTION:
             case ARROW:
-            case OUT_CONNECTION: {
+            case OUT_CONNECTION:
+            case CROSSING: {
                 return 0;
             }
             case CORNER: {
