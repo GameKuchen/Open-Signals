@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.troblecodings.core.I18Wrapper;
+import com.troblecodings.core.TCBoolean;
 import com.troblecodings.core.WriteBuffer;
 import com.troblecodings.guilib.ecs.DrawUtil.DisableIntegerable;
 import com.troblecodings.guilib.ecs.DrawUtil.EnumIntegerable;
@@ -763,6 +764,20 @@ public class GuiSignalBox extends GuiBase {
         final WriteBuffer buffer = new WriteBuffer();
         buffer.putEnumValue(SignalBoxNetwork.SEND_ZS2_ENTRY);
         buffer.putByte(value);
+        node.getPoint().writeNetwork(buffer);
+        buffer.putByte((byte) mode.ordinal());
+        buffer.putByte((byte) rotation.ordinal());
+        buffer.putByte((byte) entry.getID());
+        OpenSignalsMain.network.sendTo(info.player, buffer);
+    }
+
+    protected void sendZS6Entry(final boolean value, final SignalBoxNode node,
+            final EnumGuiMode mode, final Rotation rotation, final PathEntryType<TCBoolean> entry) {
+        if (!allPacketsRecived)
+            return;
+        final WriteBuffer buffer = new WriteBuffer();
+        buffer.putEnumValue(SignalBoxNetwork.SEND_ZS6_ENTRY);
+        buffer.putBoolean(value);
         node.getPoint().writeNetwork(buffer);
         buffer.putByte((byte) mode.ordinal());
         buffer.putByte((byte) rotation.ordinal());

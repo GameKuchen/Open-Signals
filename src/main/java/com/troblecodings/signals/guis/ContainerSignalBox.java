@@ -338,6 +338,10 @@ public class ContainerSignalBox extends ContainerBase implements UIClientSync, I
                 deserializeEntry(buffer, buffer.getByte());
                 break;
             }
+            case SEND_ZS6_ENTRY: {
+                deserializeEntry(buffer, buffer.getTcBoolean());
+                break;
+            }
             case REMOVE_POS: {
                 final BlockPos pos = buffer.getBlockPos();
                 SignalBoxHandler.unlinkPosFromSignalBox(

@@ -10,6 +10,7 @@ import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 import com.troblecodings.core.I18Wrapper;
+import com.troblecodings.core.TCBoolean;
 import com.troblecodings.guilib.ecs.DrawUtil.BoolIntegerables;
 import com.troblecodings.guilib.ecs.DrawUtil.DisableIntegerable;
 import com.troblecodings.guilib.ecs.DrawUtil.SizeIntegerables;
@@ -149,6 +150,12 @@ public class ModeDropDownBoxUI {
                     }
                 }, option.getEntry(PathEntryType.ZS2).orElse((byte) 0));
                 parent.add(zs2Entity);
+                Optional<TCBoolean> opt = option.getEntry(PathEntryType.ZS6);
+                parent.add(GuiElements.createBoolElement(BoolIntegerables.of("zs6_state"), e -> {
+                    final boolean state = e == 1 ? true : false;
+                    gui.sendZS6Entry(state, node, mode, rotation, PathEntryType.ZS6);
+                    option.setEntry(PathEntryType.ZS6, TCBoolean.valueOf(state));
+                }, opt.isPresent() && opt.get().booleanValue() ? 1 : 0));
             }
                 break;
             case VP:
