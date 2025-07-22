@@ -4,6 +4,7 @@ import java.util.Objects;
 
 import com.mojang.math.Quaternion;
 import com.mojang.math.Vector3f;
+import com.troblecodings.signals.core.FPSHelper;
 
 public class AnimationRotionCalc {
 
@@ -14,7 +15,7 @@ public class AnimationRotionCalc {
 
     public AnimationRotionCalc(final Vector3f startPosition, final Vector3f finalPosition,
             final float animationSpeed, final RotationAxis axis) {
-        this.step = 0.005f * animationSpeed;
+        this.step = 0.005f * 60 / FPSHelper.getFPS() * animationSpeed;
         this.axis = axis;
         calculateWayAndValues(startPosition, finalPosition);
     }
