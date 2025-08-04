@@ -46,7 +46,7 @@ import net.minecraftforge.client.model.data.EmptyModelData;
 @OnlyIn(Dist.CLIENT)
 public class SignalCustomModel implements UnbakedModel {
 
-    private static final Map<ResourceLocation, BakedModel> locationToModel = new HashMap<>();
+    private static final Map<ResourceLocation, BakedModel> LOCATION_TO_MODEL = new HashMap<>();
 
     @Nonnull
     public static final Random RANDOM = new Random();
@@ -114,7 +114,7 @@ public class SignalCustomModel implements UnbakedModel {
         }
 
         if (angel.equals(SignalAngel.ANGEL0) && info.isAnimation) {
-            locationToModel.put(new ResourceLocation(OpenSignalsMain.MODID, info.name), model);
+            LOCATION_TO_MODEL.put(new ResourceLocation(OpenSignalsMain.MODID, info.name), model);
         }
         return new BakedModelPair(info.state, model);
     }
@@ -161,7 +161,7 @@ public class SignalCustomModel implements UnbakedModel {
     }
 
     public static BakedModel getModelFromLocation(final ResourceLocation location) {
-        return locationToModel.getOrDefault(location,
+        return LOCATION_TO_MODEL.getOrDefault(location,
                 Minecraft.getInstance().getModelManager().getMissingModel());
     }
 }
