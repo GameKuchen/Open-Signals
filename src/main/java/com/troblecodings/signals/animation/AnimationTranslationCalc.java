@@ -3,6 +3,7 @@ package com.troblecodings.signals.animation;
 import java.util.Objects;
 
 import com.troblecodings.core.VectorWrapper;
+import com.troblecodings.signals.core.FPSHelper;
 
 public class AnimationTranslationCalc {
 
@@ -22,9 +23,9 @@ public class AnimationTranslationCalc {
 
     public AnimationTranslationCalc(final VectorWrapper startPosition,
             final VectorWrapper finalPosition, final float animationSpeed) {
-        this.stepX = 0.005f * animationSpeed;
-        this.stepY = 0.005f * animationSpeed;
-        this.stepZ = 0.005f * animationSpeed;
+        this.stepX = 0.005f * 60 / FPSHelper.getFPS() * animationSpeed;
+        this.stepY = 0.005f * 60 / FPSHelper.getFPS() * animationSpeed;
+        this.stepZ = 0.005f * 60 / FPSHelper.getFPS() * animationSpeed;
         calculateWayAndValues(startPosition, finalPosition);
     }
 
@@ -70,13 +71,11 @@ public class AnimationTranslationCalc {
     private static boolean isAnimationOnAxisIsFinished(final float step, final float progress,
             final float max) {
         if (step > 0) {
-            if (progress < max) {
+            if (progress < max)
                 return false;
-            }
         } else {
-            if (max < progress) {
+            if (max < progress)
                 return false;
-            }
         }
         return true;
     }
