@@ -149,7 +149,8 @@ public class Signal extends BasicBlock {
     @Override
     public VoxelShape getCollisionShape(final BlockState blockState, final BlockGetter worldIn,
             final BlockPos pos, final CollisionContext context) {
-        return getShape(blockState, worldIn, pos, context);
+        return Shapes.create(
+                Shapes.block().bounds().expandTowards(20, 10, 20).expandTowards(-20, -10, -20));
     }
 
     @Override
