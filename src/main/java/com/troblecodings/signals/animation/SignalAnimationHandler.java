@@ -42,14 +42,17 @@ public class SignalAnimationHandler {
         this.tile = tile;
     }
 
-    private final Map<BakedModel, Entry<ModelTranslation, List<SignalAnimation>>> animationPerModel = new HashMap<>();
+    private final Map<BakedModel, Entry<ModelTranslation, List<SignalAnimation>>> animationPerModel =
+            new HashMap<>();
 
     public void render(final RenderAnimationInfo info) {
         final BlockState state = tile.getBlockState();
+        if (!(state.getBlock() instanceof Signal))
+            return;
         final SignalAngel angle = state.getValue(Signal.ANGEL);
         final ModelBlockRenderer renderer = info.dispatcher.getModelRenderer();
-        final VertexConsumer vertex = info.source
-                .getBuffer(ItemBlockRenderTypes.getRenderType(state, false));
+        final VertexConsumer vertex =
+                info.source.getBuffer(ItemBlockRenderTypes.getRenderType(state, false));
         final IModelData data = tile.getModelData();
         final boolean shouldUpdateAnimation = shouldUpdateAnimation();
 
@@ -79,9 +82,8 @@ public class SignalAnimationHandler {
             lastWorldTick = currentTick;
         }
         calls++;
-        if (calls <= MAX_CALLS_PER_TICK) {
+        if (calls <= MAX_CALLS_PER_TICK)
             return true;
-        }
         return false;
     }
 
@@ -151,8 +153,8 @@ public class SignalAnimationHandler {
         map.forEach((entry, animations) -> {
             final BakedModel model = SignalCustomModel.getModelFromLocation(
                     new ResourceLocation(OpenSignalsMain.MODID, entry.getKey()));
-            final ModelTranslation translation = new ModelTranslation(VectorWrapper.ZERO,
-                    new Quaternion(0, 0, 0, 0));
+            final ModelTranslation translation =
+                    new ModelTranslation(VectorWrapper.ZERO, new Quaternion(0, 0, 0, 0));
             translation.setModelTranslation(entry.getValue().copy());
             animationPerModel.put(model, Maps.immutableEntry(translation, animations.stream()
                     .map(animation -> animation.copy()).collect(Collectors.toList())));
