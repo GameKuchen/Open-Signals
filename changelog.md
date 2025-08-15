@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.18.2 - 3.7.1]
+* feat: emissive textures with "lamp_" or "reflection_"
+* fix: render bounding box
+* fix: animation is not signalblock
+
 ## [1.18.2 - 3.7.0]
 * feat: new animation system for moving parts
 * feat: added render distance config option
