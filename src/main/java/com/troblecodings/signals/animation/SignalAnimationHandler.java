@@ -57,7 +57,6 @@ public class SignalAnimationHandler {
         
         final float tick = (float)(currentTick - this.lastWorldTick);
         this.lastWorldTick = currentTick;
-        System.out.println(tick);
 
         animationPerModel.forEach((model, entry) -> {
             final ModelTranslation translation = entry.getKey();
@@ -82,7 +81,6 @@ public class SignalAnimationHandler {
         final SignalAnimation animation = translation.getAssigendAnimation();
         animation.updateAnimation(tick);
         if (animation.isFinished()) {
-        	System.out.println("Finished animation!");
             translation.setUpNewTranslation(animation.getFinalModelTranslation());
             translation.removeAnimation();
             animation.reset();
