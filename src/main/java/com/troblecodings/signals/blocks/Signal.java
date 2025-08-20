@@ -53,6 +53,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition.Builder;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.material.Material;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -151,6 +152,10 @@ public class Signal extends BasicBlock {
             final BlockPos pos, final CollisionContext context) {
         return Shapes.create(
                 Shapes.block().bounds().expandTowards(20, 10, 20).expandTowards(-20, -10, -20));
+    }
+
+    public Optional<AABB> getRenderBox() {
+        return prop.shape;
     }
 
     @Override
