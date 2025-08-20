@@ -128,9 +128,7 @@ public class SignalTileEntity extends SyncableTileEntity implements NamableWrapp
 
     @Override
     public AABB getRenderBoundingBox() {
-        if (handler.areAnimationsRunning())
-            return new AABB(getBlockPos().offset(-50, -50, -50), getBlockPos().offset(50, 50, 50));
-        else
-            return super.getRenderBoundingBox();
+        return getSignal().getRenderBox().map(box -> box.move(worldPosition))
+                .orElse(super.getRenderBoundingBox());
     }
 }
