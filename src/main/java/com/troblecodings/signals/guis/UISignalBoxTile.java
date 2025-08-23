@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.troblecodings.guilib.ecs.GuiElements;
+import com.troblecodings.guilib.ecs.entitys.DrawInfo;
 import com.troblecodings.guilib.ecs.entitys.UIComponent;
 import com.troblecodings.guilib.ecs.entitys.UIComponentEntity;
 import com.troblecodings.guilib.ecs.entitys.UIEntity;
@@ -133,7 +134,16 @@ public class UISignalBoxTile extends UIComponentEntity {
             }
         }
 
-        entity.add((UIComponent) modeSet.mode.consumer.apply(state));
+        entity.add(new UIComponent() {
+			
+			@Override
+			public void update() {}
+			
+			@Override
+			public void draw(DrawInfo info) {
+				modeSet.mode.consumer.apply(state).accept(info);
+			}
+		});
         this.entity.add(entity);
         setToEntity.put(modeSet, entity);
         this.entity.setVisible(!setToEntity.isEmpty());
