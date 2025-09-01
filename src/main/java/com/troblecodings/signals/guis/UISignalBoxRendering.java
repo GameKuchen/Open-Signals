@@ -72,15 +72,12 @@ public class UISignalBoxRendering extends UIComponent {
 		this.gridParent = gridParent;
 		gridRender = Maps.newHashMap();
 		List<SignalBoxNode> nodes = grid.getNodes();
-		nodes.forEach(node -> {
-			addNode(node, SignalState.RED) ;
-			});
-		// TODO Signal State
+		nodes.forEach(this::addNode);
 	}
 
-	private void addNode(SignalBoxNode node, SignalState state) {
+	private void addNode(SignalBoxNode node) {
 		Map<ModeSet, ModeRenderInfo> modesets = gridRender.computeIfAbsent(node.getPoint(), k -> Maps.newHashMap());
-		node.forEach(modeSet -> modesets.put(modeSet, new ModeRenderInfo(modeSet.mode, state)));
+		node.forEach(modeSet -> modesets.put(modeSet, new ModeRenderInfo(modeSet.mode, node.getState(modeSet))));
 		gridRender.put(node.getPoint(), modesets);
 	}
 	
