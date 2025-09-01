@@ -72,7 +72,9 @@ public class UISignalBoxRendering extends UIComponent {
 		this.gridParent = gridParent;
 		gridRender = Maps.newHashMap();
 		List<SignalBoxNode> nodes = grid.getNodes();
-		nodes.forEach(node -> addNode(node, SignalState.RED));
+		nodes.forEach(node -> {
+			addNode(node, SignalState.RED) ;
+			});
 		// TODO Signal State
 	}
 
@@ -216,14 +218,30 @@ public class UISignalBoxRendering extends UIComponent {
 			return map;
 		});
 	}
+	
+	public void updateSignalState(final Point point, final ModeSet set, final SignalState state) {
+		gridRender.computeIfPresent(point, (p, map) -> {
+			map.computeIfPresent(set, (u, m) -> new ModeRenderInfo(m, state));
+			return map;
+		});
+	}
 
 
 	private class ModeRenderInfo {
 		public int color;
+		private final EnumGuiMode mode;
 		public final Consumer<DrawInfo> component;
 
 		public ModeRenderInfo(EnumGuiMode mode, SignalState state) {
 			this.color = mode.getDefaultColor();
+			final BiConsumer<DrawInfo, Integer> component = mode.consumer.apply(state);
+			this.mode = mode;
+			this.component = (info) -> component.accept(info, color);
+		}
+
+		public ModeRenderInfo(ModeRenderInfo old, SignalState state) {
+			this.mode = old.mode;
+			this.color = old.color;
 			final BiConsumer<DrawInfo, Integer> component = mode.consumer.apply(state);
 			this.component = (info) -> component.accept(info, color);
 		}

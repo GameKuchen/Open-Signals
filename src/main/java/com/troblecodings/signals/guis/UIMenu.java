@@ -2,6 +2,7 @@ package com.troblecodings.signals.guis;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 
 import com.troblecodings.guilib.ecs.GuiElements;

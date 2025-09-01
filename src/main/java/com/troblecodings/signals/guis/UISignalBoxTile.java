@@ -27,7 +27,6 @@ import com.troblecodings.signals.signalbox.entrys.PathEntryType;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Rotation;
-import net.minecraftforge.client.gui.GuiUtils;
 
 public class UISignalBoxTile extends UIComponentEntity {
 
