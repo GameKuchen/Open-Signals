@@ -23,6 +23,8 @@ import com.troblecodings.signals.models.ModelInfoWrapper;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.AABB;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.model.data.IModelData;
 
 public class SignalTileEntity extends SyncableTileEntity implements NamableWrapper, ISyncable {
@@ -96,6 +98,7 @@ public class SignalTileEntity extends SyncableTileEntity implements NamableWrapp
         return new ModelInfoWrapper(properties);
     }
 
+    @OnlyIn(Dist.CLIENT)
     @Override
     public void requestModelDataUpdate() {
         final Map<SEProperty, String> newProperties =
