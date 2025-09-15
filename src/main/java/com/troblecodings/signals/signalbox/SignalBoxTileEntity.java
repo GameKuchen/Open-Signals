@@ -1,7 +1,5 @@
 package com.troblecodings.signals.signalbox;
 
-import java.util.Optional;
-
 import com.troblecodings.core.NBTWrapper;
 import com.troblecodings.guilib.ecs.interfaces.ISyncable;
 import com.troblecodings.opensignals.linkableapi.ILinkableTile;
