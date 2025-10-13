@@ -11,7 +11,9 @@ import com.troblecodings.core.I18Wrapper;
 import com.troblecodings.guilib.ecs.DrawUtil.BoolIntegerables;
 import com.troblecodings.guilib.ecs.DrawUtil.SizeIntegerables;
 import com.troblecodings.guilib.ecs.GuiElements;
+import com.troblecodings.guilib.ecs.entitys.DrawInfo;
 import com.troblecodings.guilib.ecs.entitys.UIBox;
+import com.troblecodings.guilib.ecs.entitys.UIComponent;
 import com.troblecodings.guilib.ecs.entitys.UIEntity;
 import com.troblecodings.guilib.ecs.entitys.UIScrollBox;
 import com.troblecodings.guilib.ecs.entitys.UITextInput;
@@ -45,7 +47,6 @@ import com.troblecodings.signals.signalbox.entrys.PathOptionEntry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.block.Rotation;
 
 public class SidePanel {
 
@@ -184,6 +185,22 @@ public class SidePanel {
         counterLabel.setText(String.format("%04d", gui.container.grid.getCurrentCounter()));
     }
 
+    public static UIComponent fromEnum(int selection, int rotation, final float scale) {
+        final EnumGuiMode modes = EnumGuiMode.values()[selection];
+        return new UIComponent() {
+			
+			@Override
+			public void draw(DrawInfo info) {
+				if(this.parent == null) return;
+				info.push();
+				info.scale(scale, scale, 1.0f);
+				info.rotate(0, 0, rotation * UIRotate.PERPENDICULAR_ANGLE);
+				modes.consumer.apply(SignalState.RED).accept(info, modes.getDefaultColor());
+				info.pop();
+			}
+		};
+    }
+    
     public void updateNextNode(final int selection, final int rotation) {
         infoEntity.clearChildren();
         infoEntity.add(GuiElements.createSpacerV(2));
@@ -197,11 +214,9 @@ public class SidePanel {
         preview.add(new UIColor(0xFFAFAFAF));
         preview.add(new UIBorder(preview.getBasicTextColor()));
         preview.add(new UIScissor());
-        final SignalBoxNode node = new SignalBoxNode(new Point(-1, -1));
-        final EnumGuiMode modes = EnumGuiMode.values()[selection];
-        node.add(new ModeSet(modes, Rotation.values()[rotation]));
 
-        final UISignalBoxTile sbt = new UISignalBoxTile(node);
+        final UIComponent sbt = fromEnum(selection, rotation, 4.6f);
+        
         final UIEntity sbtEntity = new UIEntity();
         sbtEntity.setWidth(50);
         sbtEntity.setHeight(50);
@@ -222,8 +237,9 @@ public class SidePanel {
         infoEntity.add(getSpacerLine());
         infoEntity.add(GuiElements.createLabel(I18Wrapper.format("info.description"),
                 new UIEntity().getBasicTextColor(), 0.8f));
+        final EnumGuiMode mode = EnumGuiMode.values()[selection];
         infoEntity.add(
-                GuiElements.createLabel(I18Wrapper.format("info." + modes.toString().toLowerCase()),
+                GuiElements.createLabel(I18Wrapper.format("info." + mode.toString().toLowerCase()),
                         new UIEntity().getInfoTextColor(), 0.5f));
         addHelpPageToPlane();
     }
