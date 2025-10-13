@@ -101,7 +101,7 @@ public class UISignalBoxRendering extends UIComponent {
 			info.push();
 			info.translate(TILE_WIDTH / 2, TILE_WIDTH / 2, 0);
 			info.rotate(Quaternion.fromXYZ(0, 0, set.rotation.ordinal() * UIRotate.PERPENDICULAR_ANGLE));
-			info.translate(-TILE_WIDTH / 2, -TILE_WIDTH / 2, set.mode.translation);
+			info.translate(-TILE_WIDTH / 2, -TILE_WIDTH / 2, set.mode.depth);
 			rInfo.component.accept(info);
 			info.pop();
 		});

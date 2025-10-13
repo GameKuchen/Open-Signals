@@ -25,7 +25,7 @@ public enum EnumGuiMode {
 	ARROW(UISignalBoxTile.ARROW_ICON, PathwayModeType.END, 1),
 	NE1(UISignalBoxTile.NE1_ICON, PathwayModeType.START_END, 1),
 	NE5(UISignalBoxTile.NE5_ICON, PathwayModeType.START_END, 1), ZS3(UISignalBoxTile.ZS3_ICON, PathwayModeType.NONE, 1),
-	TRAIN_NUMBER(new float[] { 0, 0.5f, 2, 0.5f }, PathwayModeType.NONE, 2, 6, GuiSignalBox.TRAIN_NUMBER_BACKGROUND_COLOR),
+	TRAIN_NUMBER(new float[] { 0, 0.5f, 2, 0.5f }, PathwayModeType.NONE, 2, GuiSignalBox.TRAIN_NUMBER_BACKGROUND_COLOR, 6),
 	CROSSING(new float[] { 0.5f, 0, 0.5f, 1, 0, 0.5f, 1, 0.5f });
 
 	/**
@@ -33,33 +33,33 @@ public enum EnumGuiMode {
 	 */
 
 	public final Function<SignalState, BiConsumer<DrawInfo, Integer>> consumer;
-	public final int translation;
+	public final int depth;
 	private int defaultColor;
 	private final PathwayModeType type;
 
-	private EnumGuiMode(final int id, final PathwayModeType type, final int translation) {
+	private EnumGuiMode(final int id, final PathwayModeType type, final int depth) {
 		this((_u) -> ((info, c) -> info.drawTexture(UISignalBoxTile.ICON, UISignalBoxRendering.TILE_WIDTH,
-				UISignalBoxRendering.TILE_WIDTH, id * 0.2, 0, id * 0.2 + 0.2, 0.5)), type, translation);
+				UISignalBoxRendering.TILE_WIDTH, id * 0.2, 0, id * 0.2 + 0.2, 0.5)), type, depth);
 	}
 
-	private EnumGuiMode(final int id, final boolean unused, final PathwayModeType type, final int translation) {
+	private EnumGuiMode(final int id, final boolean unused, final PathwayModeType type, final int depth) {
 		this((state) -> {
 			final int factor = state.ordinal() < 3 ? (state.ordinal() * 3) : (6 + state.ordinal());
 			return (info, c) -> info.drawTexture(UISignalBoxTile.SIGNALS, UISignalBoxRendering.TILE_WIDTH,
 					UISignalBoxRendering.TILE_WIDTH, (id + factor) * 0.0666667f, 0.0f,
 					(id + factor) * 0.066667f + 0.06f, 1.0f);
-		}, type, translation);
+		}, type, depth);
 	}
 
 	private EnumGuiMode(final float[] array) {
 		this(array, PathwayModeType.NONE, 0);
 	}
 
-	private EnumGuiMode(final float[] array, final PathwayModeType type, final int translation) {
-		this(array, type, translation, SignalBoxUtil.FREE_COLOR, 2);
+	private EnumGuiMode(final float[] array, final PathwayModeType type, final int depth) {
+		this(array, type, depth, SignalBoxUtil.FREE_COLOR, 2);
 	}
 
-	private EnumGuiMode(final float[] array, final PathwayModeType type, final int translation, final int color,
+	private EnumGuiMode(final float[] array, final PathwayModeType type, final int depth, final int color,
 			final int width) {
 		this((_u) -> {
 			float[] currentArray = Arrays.copyOf(array, array.length);
@@ -67,22 +67,22 @@ public enum EnumGuiMode {
 				currentArray[i] *= UISignalBoxRendering.TILE_WIDTH;
 			}
 			return (info, c) -> info.lines(c, width, currentArray);
-		}, type, translation);
+		}, type, depth);
 		this.defaultColor = color;
 	}
 
-	private EnumGuiMode(final ResourceLocation location, final PathwayModeType type, final int translation) {
+	private EnumGuiMode(final ResourceLocation location, final PathwayModeType type, final int depth) {
 		this.consumer = (state) -> ((info, color) -> info.drawTexture(location, UISignalBoxRendering.TILE_WIDTH,
 				UISignalBoxRendering.TILE_WIDTH, 0, 0, 1, 1));
 		this.type = type;
-		this.translation = translation;
+		this.depth = depth;
 	}
 
 	private EnumGuiMode(final Function<SignalState, BiConsumer<DrawInfo, Integer>> consumer, final PathwayModeType type,
-			final int translation) {
+			final int depth) {
 		this.consumer = consumer;
 		this.type = type;
-		this.translation = translation;
+		this.depth = depth;
 	}
 
 	public PathwayModeType getModeType() {
