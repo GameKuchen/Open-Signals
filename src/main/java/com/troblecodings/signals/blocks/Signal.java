@@ -69,8 +69,8 @@ public class Signal extends BasicBlock {
 
     public static final Map<String, Signal> SIGNALS = new HashMap<>();
     public static final List<Signal> SIGNAL_IDS = new ArrayList<>();
-    public static final EnumProperty<SignalAngel> ANGEL = EnumProperty.create("angel",
-            SignalAngel.class);
+    public static final EnumProperty<SignalAngel> ANGEL =
+            EnumProperty.create("angel", SignalAngel.class);
     public static final SEProperty CUSTOMNAME = new SEProperty("customname", JsonEnum.BOOLEAN,
             "false", ChangeableStage.AUTOMATICSTAGE, t -> true, 0);
     public static final TileEntitySupplierWrapper SUPPLIER = SignalTileEntity::new;
@@ -128,8 +128,8 @@ public class Signal extends BasicBlock {
 
     @Override
     public BlockState getStateForPlacement(final BlockPlaceContext context) {
-        final int angel = Integer
-                .valueOf(Mth.floor(context.getRotation() * 16.0F / 360.0F + 0.5D) & 15);
+        final int angel =
+                Integer.valueOf(Mth.floor(context.getRotation() * 16.0F / 360.0F + 0.5D) & 15);
         return defaultBlockState().setValue(ANGEL, SignalAngel.values()[angel]);
     }
 
@@ -154,8 +154,7 @@ public class Signal extends BasicBlock {
     @Override
     public VoxelShape getCollisionShape(final BlockState blockState, final BlockGetter worldIn,
             final BlockPos pos, final CollisionContext context) {
-        return Shapes.create(
-                Shapes.block().bounds().expandTowards(20, 10, 20).expandTowards(-20, -10, -20));
+        return getShape(blockState, worldIn, pos, context);
     }
 
     public Optional<AABB> getRenderBox() {
