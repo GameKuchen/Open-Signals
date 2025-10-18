@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import com.troblecodings.core.I18Wrapper;
@@ -185,6 +186,17 @@ public class SidePanel {
         counterLabel.setText(String.format("%04d", gui.container.grid.getCurrentCounter()));
     }
 
+    
+    private static void drawMenuFromEnum(DrawInfo info, EnumGuiMode modes, int rotation, final float scale) {
+		info.push();				
+		info.scale(scale, scale, 1.0f);
+		info.translate(UISignalBoxRendering.HALF_TILE, UISignalBoxRendering.HALF_TILE, 0);
+		info.rotate(0, 0, rotation * UIRotate.PERPENDICULAR_ANGLE);
+		info.translate(-UISignalBoxRendering.HALF_TILE, -UISignalBoxRendering.HALF_TILE, 0);
+		modes.consumer.apply(SignalState.RED).accept(info, modes.getDefaultColor());
+		info.pop();
+    }
+    
     public static UIComponent fromEnum(int selection, int rotation, final float scale) {
         final EnumGuiMode modes = EnumGuiMode.values()[selection];
         return new UIComponent() {
@@ -192,11 +204,7 @@ public class SidePanel {
 			@Override
 			public void draw(DrawInfo info) {
 				if(this.parent == null) return;
-				info.push();
-				info.scale(scale, scale, 1.0f);
-				info.rotate(0, 0, rotation * UIRotate.PERPENDICULAR_ANGLE);
-				modes.consumer.apply(SignalState.RED).accept(info, modes.getDefaultColor());
-				info.pop();
+				drawMenuFromEnum(info, modes, rotation, scale);
 			}
 		};
     }
