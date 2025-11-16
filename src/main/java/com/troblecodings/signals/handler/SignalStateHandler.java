@@ -329,6 +329,11 @@ public final class SignalStateHandler implements INetworkSync {
                             + "/osfiles/signalfiles/"
                             + stateInfo.world.dimension().location().toString().replace(":", ""))));
         }
+        if (file == null) {
+            OpenSignalsMain.getLogger().error(
+                    "There is no StateFile for " + stateInfo.pos + "! This shouldn't be so!");
+            return map;
+        }
         SignalStatePosV2 pos = file.find(stateInfo.pos);
         if (pos == null) {
             if (stateInfo.world.isClientSide) {
