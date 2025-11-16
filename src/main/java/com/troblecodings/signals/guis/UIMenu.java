@@ -22,8 +22,8 @@ import net.minecraft.world.level.block.Rotation;
 
 public class UIMenu extends UIComponentEntity {
 
-	public static final int BACKGROUND_COLOR = 0xFFAFAFAF;
-	public static final int HIGHLIGHT_COLOR = 0x45339933;
+    public static final int BACKGROUND_COLOR = 0xFFAFAFAF;
+    public static final int HIGHLIGHT_COLOR = 0x45339933;
 
     private final Map<EnumGuiMode, UIEntity> modeForEntity = new HashMap<>();
 
@@ -44,14 +44,14 @@ public class UIMenu extends UIComponentEntity {
         entity.add(list);
         list.setInheritWidth(true);
         list.setHeight(21);
-        
+
         final UIScrollBox scrollbox = new UIScrollBox(UIBox.HBOX, 2);
         list.add(scrollbox);
         for (final EnumGuiMode mode : EnumGuiMode.values()) {
             final UIEntity preview = new UIEntity();
             preview.add(new UIColor(BACKGROUND_COLOR));
             preview.add(new UIReentrantScissor());
-            
+
             final UIComponent sbt = SidePanel.fromEnum(mode.ordinal(), rotation, 1.95f);
             preview.add(sbt);
             preview.setHeight(20);
@@ -73,7 +73,10 @@ public class UIMenu extends UIComponentEntity {
     private void updateSelection(final EnumGuiMode newMode) {
         final UIEntity previousEntity = modeForEntity.get(EnumGuiMode.values()[selection]);
         if (previousEntity != null) {
-            previousEntity.findRecursive(UIColor.class).forEach(c -> { if(c.getColor() == HIGHLIGHT_COLOR) previousEntity.remove(c);});
+            previousEntity.findRecursive(UIColor.class).forEach(c -> {
+                if (c.getColor() == HIGHLIGHT_COLOR)
+                    previousEntity.remove(c);
+            });
         }
         final UIEntity newEntity = modeForEntity.get(newMode);
         newEntity.add(new UIColor(HIGHLIGHT_COLOR));
@@ -91,18 +94,18 @@ public class UIMenu extends UIComponentEntity {
 
     @Override
     public void update() {
-    	this.entity.setHeight(this.parent.getHeight());
-    	this.entity.setWidth(this.parent.getWidth() - 4);
-    	this.entity.update();
+        this.entity.setHeight(this.parent.getHeight());
+        this.entity.setWidth(this.parent.getWidth() - 4);
+        this.entity.update();
     }
-    
+
     @Override
     public void onAdd(UIEntity entity) {
-    	super.onAdd(entity);
-    	this.entity.onAdd(entity);
-    	this.entity.updateEvent(entity.getLastUpdateEvent());
+        super.onAdd(entity);
+        this.entity.onAdd(entity);
+        this.entity.updateEvent(entity.getLastUpdateEvent());
     }
-    
+
     @Override
     public void keyEvent(final KeyEvent event) {
         super.keyEvent(event);
