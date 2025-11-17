@@ -1,12 +1,12 @@
 package com.troblecodings.signals.guis;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
+import com.google.common.collect.Maps;
 import com.troblecodings.core.I18Wrapper;
 import com.troblecodings.guilib.ecs.DrawUtil.BoolIntegerables;
 import com.troblecodings.guilib.ecs.DrawUtil.SizeIntegerables;
@@ -185,29 +185,30 @@ public class SidePanel {
         counterLabel.setText(String.format("%04d", gui.container.grid.getCurrentCounter()));
     }
 
-    
-    private static void drawMenuFromEnum(DrawInfo info, EnumGuiMode modes, int rotation, final float scale) {
-		info.push();				
-		info.scale(scale, scale, 1.0f);
-		info.translate(UISignalBoxRendering.HALF_TILE, UISignalBoxRendering.HALF_TILE, 0);
-		info.rotate(0, 0, rotation * UIRotate.PERPENDICULAR_ANGLE);
-		info.translate(-UISignalBoxRendering.HALF_TILE, -UISignalBoxRendering.HALF_TILE, 0);
-		modes.consumer.apply(SignalState.RED).accept(info, modes.getDefaultColor());
-		info.pop();
+    private static void drawMenuFromEnum(DrawInfo info, EnumGuiMode modes, int rotation,
+            final float scale) {
+        info.push();
+        info.scale(scale, scale, 1.0f);
+        info.translate(UISignalBoxRendering.HALF_TILE, UISignalBoxRendering.HALF_TILE, 0);
+        info.rotate(0, 0, rotation * UIRotate.PERPENDICULAR_ANGLE);
+        info.translate(-UISignalBoxRendering.HALF_TILE, -UISignalBoxRendering.HALF_TILE, 0);
+        modes.consumer.apply(SignalState.RED).accept(info, modes.getDefaultColor());
+        info.pop();
     }
-    
+
     public static UIComponent fromEnum(int selection, int rotation, final float scale) {
         final EnumGuiMode modes = EnumGuiMode.values()[selection];
         return new UIComponent() {
-			
-			@Override
-			public void draw(DrawInfo info) {
-				if(this.parent == null) return;
-				drawMenuFromEnum(info, modes, rotation, scale);
-			}
-		};
+
+            @Override
+            public void draw(DrawInfo info) {
+                if (this.parent == null)
+                    return;
+                drawMenuFromEnum(info, modes, rotation, scale);
+            }
+        };
     }
-    
+
     public void updateNextNode(final int selection, final int rotation) {
         infoEntity.clearChildren();
         infoEntity.add(GuiElements.createSpacerV(2));
@@ -223,7 +224,7 @@ public class SidePanel {
         preview.add(new UIScissor());
 
         final UIComponent sbt = fromEnum(selection, rotation, 4.6f);
-        
+
         final UIEntity sbtEntity = new UIEntity();
         sbtEntity.setWidth(50);
         sbtEntity.setHeight(50);
@@ -250,9 +251,9 @@ public class SidePanel {
                         new UIEntity().getInfoTextColor(), 0.5f));
         addHelpPageToPlane();
     }
-    
+
     public void resetHelpUsageMode() {
-    	helpUsageMode(null);
+        helpUsageMode(null);
     }
 
     public void helpUsageMode(final SignalBoxNode node) {
@@ -456,9 +457,10 @@ public class SidePanel {
                                                 }
                                                 gui.pop();
                                                 helpUsageMode(node);
-                                                node.updateState(mode, SignalState.combine(state
-                                                        .getSubsidiaryShowType()));
-                                                gui.container.updatePoint.accept(node.getPoint(), mode);
+                                                node.updateState(mode, SignalState
+                                                        .combine(state.getSubsidiaryShowType()));
+                                                gui.container.updatePoint.accept(node.getPoint(),
+                                                        mode);
                                                 if (state.isCountable() && entry.state) {
                                                     gui.container.grid.countOne();
                                                     gui.updateCounter();
@@ -713,11 +715,11 @@ public class SidePanel {
     private void addManuellRStoUI() {
         final List<SignalBoxNode> allNodes = gui.container.grid.getNodes();
         final Minecraft mc = Minecraft.getInstance();
-        
-        final Map<String, UIEntity> nameToUIEntity = new HashMap<>();
+
+        final List<Map.Entry<String, UIEntity>> nameToUIEntity = new ArrayList<>();
         allNodes.forEach(currentNode -> {
-            final UILabel currentStatus = new UILabel(I18Wrapper.format("info.usage.status")
-                    + " : " + I18Wrapper.format("info.usage.status.free"));
+            final UILabel currentStatus = new UILabel(I18Wrapper.format("info.usage.status") + " : "
+                    + I18Wrapper.format("info.usage.status.free"));
             currentStatus.setTextColor(new UIEntity().getBasicTextColor());
             final UIEntity statusEntity = new UIEntity();
             statusEntity.setInheritWidth(true);
@@ -781,29 +783,23 @@ public class SidePanel {
                         gui.push(GuiElements.createScreen(entity -> entity.add(info)));
                         return;
                     }
-                    info.add(GuiElements.createButton(I18Wrapper.format("info.usage.change"),
-                            i -> {
-                                final boolean turnOff = currentNode.containsManuellOutput(mode);
-                                textureEntity.clear();
-                                textureEntity.add(
-                                        new UIToolTip(I18Wrapper.format("info.usage.rs.desc")));
-                                if (turnOff) {
-                                    gui.changeRedstoneOutput(currentNode.getPoint(), mode,
-                                            false);
-                                    outputStatus
-                                            .setText(I18Wrapper.format("info.usage.rs.false"));
-                                    textureEntity.add(new UITexture(GuiSignalBox.REDSTONE_OFF));
-                                } else {
-                                    gui.changeRedstoneOutput(currentNode.getPoint(), mode,
-                                            true);
-                                    outputStatus
-                                            .setText(I18Wrapper.format("info.usage.rs.true"));
-                                    textureEntity.add(new UITexture(GuiSignalBox.REDSTONE_ON));
-                                }
-                            }));
+                    info.add(GuiElements.createButton(I18Wrapper.format("info.usage.change"), i -> {
+                        final boolean turnOff = currentNode.containsManuellOutput(mode);
+                        textureEntity.clear();
+                        textureEntity.add(new UIToolTip(I18Wrapper.format("info.usage.rs.desc")));
+                        if (turnOff) {
+                            gui.changeRedstoneOutput(currentNode.getPoint(), mode, false);
+                            outputStatus.setText(I18Wrapper.format("info.usage.rs.false"));
+                            textureEntity.add(new UITexture(GuiSignalBox.REDSTONE_OFF));
+                        } else {
+                            gui.changeRedstoneOutput(currentNode.getPoint(), mode, true);
+                            outputStatus.setText(I18Wrapper.format("info.usage.rs.true"));
+                            textureEntity.add(new UITexture(GuiSignalBox.REDSTONE_ON));
+                        }
+                    }));
                     gui.push(GuiElements.createScreen(entity -> entity.add(info)));
                 });
-                nameToUIEntity.put(name.toLowerCase(), button);
+                nameToUIEntity.add(Maps.immutableEntry(name.toLowerCase(), button));
             });
         });
 
@@ -869,22 +865,15 @@ public class SidePanel {
     }
 
     private void addColorToTile(final Point start, final Point end, final int color) {
-    	// WTF ???
-    	/*
-        if (startTile == null || endTile == null)
-            return;
-        final UIColor uiColor = new UIColor(color);
-        new Thread(() -> {
-            startTile.getParent().add(uiColor);
-            endTile.getParent().add(uiColor);
-            try {
-                Thread.sleep(3000);
-            } catch (final InterruptedException e) {
-                e.printStackTrace();
-            }
-            startTile.getParent().remove(uiColor);
-            endTile.getParent().remove(uiColor);
-        }, "GuiSignalBox:showNextPathway").start(); */
+        // WTF ???
+        /*
+         * if (startTile == null || endTile == null) return; final UIColor uiColor = new
+         * UIColor(color); new Thread(() -> { startTile.getParent().add(uiColor);
+         * endTile.getParent().add(uiColor); try { Thread.sleep(3000); } catch (final
+         * InterruptedException e) { e.printStackTrace(); }
+         * startTile.getParent().remove(uiColor); endTile.getParent().remove(uiColor);
+         * }, "GuiSignalBox:showNextPathway").start();
+         */
     }
 
     private static UIEntity getSpacerLine() {
