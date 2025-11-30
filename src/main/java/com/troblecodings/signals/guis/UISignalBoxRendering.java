@@ -137,7 +137,7 @@ public class UISignalBoxRendering extends UIComponent {
             info.translate(HALF_TILE, HALF_TILE, 0);
             info.rotate(Quaternion.fromXYZ(0, 0,
                     set.rotation.ordinal() * UIRotate.PERPENDICULAR_ANGLE));
-            info.translate(-HALF_TILE, -HALF_TILE, set.mode.depth);
+            info.translate(-HALF_TILE, -HALF_TILE, set.mode.depthFunc.apply(rInfo.state));
             rInfo.component.accept(info);
             info.pop();
         });
@@ -312,12 +312,14 @@ public class UISignalBoxRendering extends UIComponent {
     }
 
     private class ModeRenderInfo {
+        public SignalState state;
         public int color;
         private final EnumGuiMode mode;
         public final Consumer<DrawInfo> component;
 
         public ModeRenderInfo(EnumGuiMode mode, SignalState state) {
             this.color = mode.getDefaultColor();
+            this.state = state;
             final BiConsumer<DrawInfo, Integer> component = mode.consumer.apply(state);
             this.mode = mode;
             this.component = (info) -> component.accept(info, color);
@@ -326,6 +328,7 @@ public class UISignalBoxRendering extends UIComponent {
         public ModeRenderInfo(ModeRenderInfo old, SignalState state) {
             this.mode = old.mode;
             this.color = old.color;
+            this.state = state;
             final BiConsumer<DrawInfo, Integer> component = mode.consumer.apply(state);
             this.component = (info) -> component.accept(info, color);
         }
