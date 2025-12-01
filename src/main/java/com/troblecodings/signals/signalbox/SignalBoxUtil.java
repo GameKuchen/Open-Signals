@@ -6,8 +6,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.google.common.collect.ImmutableList;
+import com.troblecodings.signals.blocks.RedstoneIO;
 import com.troblecodings.signals.config.ConfigHandler;
 import com.troblecodings.signals.core.ModeIdentifier;
 import com.troblecodings.signals.enums.EnumGuiMode;
@@ -16,7 +18,9 @@ import com.troblecodings.signals.enums.PathwayRequestResult;
 import com.troblecodings.signals.enums.PathwayRequestResult.PathwayRequestMode;
 import com.troblecodings.signals.signalbox.entrys.PathEntryType;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.state.BlockState;
 
 public final class SignalBoxUtil {
 
@@ -150,7 +154,9 @@ public final class SignalBoxUtil {
             checker.nextNode = nextNode;
             for (final PathIdentifier pathIdent : nextNode.toPathIdentifier()) {
                 checker.path = pathIdent.path;
-                mode = checker.check();
+                mode = isPathBlocked(grid, nextNode, pathIdent.path)
+                        ? PathwayRequestMode.INPUT_BLOCKING
+                        : checker.check();
                 if (nextPoint.equals(p2) || mode.isPass()) {
                     scores.put(pathIdent, getCosts(pathIdent.getMode(), nextNode, nextPoint, p2));
                     closedList.put(nextPoint, previousPoint);
@@ -207,7 +213,9 @@ public final class SignalBoxUtil {
             checker.nextNode = nextNode;
             for (final PathIdentifier pathIdent : nextNode.toPathIdentifier()) {
                 checker.path = pathIdent.path;
-                final PathwayRequestMode result = checker.check();
+                final PathwayRequestMode result = isPathBlocked(grid, nextNode, pathIdent.path)
+                        ? PathwayRequestMode.INPUT_BLOCKING
+                        : checker.check();
                 if (nextPoint.equals(p2) || result.isPass()) {
                     scores.put(pathIdent, getCosts(pathIdent.getMode(), nextNode, nextPoint, p2));
                     closedList.put(nextPoint, previousPoint);
@@ -240,6 +248,25 @@ public final class SignalBoxUtil {
                 return true;
         }
         return false;
+    }
+
+    private static boolean isPathBlocked(final SignalBoxGrid grid, final SignalBoxNode node,
+            final Path path) {
+        final AtomicBoolean bool = new AtomicBoolean(false);
+        node.getOption(path)
+                .ifPresent(entry -> entry.getEntry(PathEntryType.BLOCKING).ifPresent(pos -> {
+                    if (isPowerd(grid.tile, pos))
+                        bool.set(true);
+                }));
+
+        return bool.get();
+    }
+
+    private static boolean isPowerd(final SignalBoxTileEntity tile, final BlockPos pos) {
+        final BlockState state = tile.getLevel().getBlockState(pos);
+        if (state == null || !(state.getBlock() instanceof RedstoneIO))
+            return false;
+        return state.getValue(RedstoneIO.POWER);
     }
 
     public static int getDefaultCosts(final ModeSet mode) {
