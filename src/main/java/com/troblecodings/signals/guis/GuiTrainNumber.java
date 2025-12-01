@@ -10,6 +10,7 @@ import com.troblecodings.guilib.ecs.entitys.UIEntity.MouseEvent;
 import com.troblecodings.guilib.ecs.entitys.UITextInput;
 import com.troblecodings.guilib.ecs.entitys.render.UILabel;
 import com.troblecodings.guilib.ecs.entitys.render.UIToolTip;
+import com.troblecodings.signals.OpenSignalsMain;
 import com.troblecodings.signals.guis.UISignalBoxRendering.BoxEntity;
 import com.troblecodings.signals.guis.UISignalBoxRendering.SelectionType;
 
@@ -21,7 +22,7 @@ public class GuiTrainNumber extends GuiBase {
         super(info);
         this.container = (ContainerTrainNumber) info.base;
         this.entity.clear();
-        this.entity.add(new UILabel("Not connected"));
+        this.entity.add(new UILabel(I18Wrapper.format("gui.notconnected")));
     }
 
     private void initOwn() {
@@ -35,7 +36,8 @@ public class GuiTrainNumber extends GuiBase {
         inner.add(new UIBox(UIBox.VBOX, 5));
         inner.add(GuiElements.createSpacerV(10));
 
-        final UIEntity label = GuiElements.createLabel(I18Wrapper.format("tile.trainnumberchanger"),
+        final UIEntity label = GuiElements.createLabel(
+                I18Wrapper.format("block." + OpenSignalsMain.MODID + ".trainnumberblock"),
                 0x7678a0);
         label.setScaleX(1.5f);
         label.setScaleY(1.5f);
@@ -63,51 +65,52 @@ public class GuiTrainNumber extends GuiBase {
         inputEntity.add(new UIToolTip(I18Wrapper.format("gui.trainnumber.info.change")));
         inner.add(inputEntity);
 
-        final UIEntity changeButton = GuiElements.createButton(
-                I18Wrapper.format("gui.trainnumber.setpoint"),
-                e -> push(GuiElements.createScreen(screen -> {
-                    final BoxEntity entitys = UISignalBoxRendering.createSignalBoxEntity(
-                            container.grid, false, (rendering, point, mouseKey) -> {
-                                if (mouseKey != MouseEvent.LEFT_MOUSE)
-                                    return;
-                                container.grid.getNodeChecked(point).ifPresent(node -> {
-                                    if (node.isEmpty())
-                                        return;
-                                    rendering.addSelection(GuiSignalBox.SELECTION_COLOR, point,
-                                            SelectionType.FIRST);
-                                    container.selectedPoint = point;
-                                    container.sendNewPoint();
-                                });
-                            });
-                    if (container.selectedPoint != null)
-                        entitys.rendering.addSelection(GuiSignalBox.SELECTION_COLOR,
-                                container.selectedPoint, SelectionType.FIRST);
-                    screen.add(entitys.entity);
+        final UIEntity changeButton =
+                GuiElements.createButton(I18Wrapper.format("gui.trainnumber.setpoint"),
+                        e -> push(GuiElements.createScreen(screen -> {
+                            final BoxEntity entitys = UISignalBoxRendering.createSignalBoxEntity(
+                                    container.grid, false, (rendering, point, mouseKey) -> {
+                                        if (mouseKey != MouseEvent.LEFT_MOUSE)
+                                            return;
+                                        container.grid.getNodeChecked(point).ifPresent(node -> {
+                                            if (node.isEmpty())
+                                                return;
+                                            rendering.addSelection(GuiSignalBox.SELECTION_COLOR,
+                                                    point, SelectionType.FIRST);
+                                            container.selectedPoint = point;
+                                            container.sendNewPoint();
+                                        });
+                                    });
+                            if (container.selectedPoint != null) {
+                                entitys.rendering.addSelection(GuiSignalBox.SELECTION_COLOR,
+                                        container.selectedPoint, SelectionType.FIRST);
+                            }
+                            screen.add(entitys.entity);
 
-                    final UIEntity lowerEntity = new UIEntity();
-                    lowerEntity.add(new UIBox(UIBox.HBOX, 5));
-                    lowerEntity.setHeight(15);
-                    lowerEntity.setInheritWidth(true);
+                            final UIEntity lowerEntity = new UIEntity();
+                            lowerEntity.add(new UIBox(UIBox.HBOX, 5));
+                            lowerEntity.setHeight(15);
+                            lowerEntity.setInheritWidth(true);
 
-                    final UIEntity backButtonEntity = new UIEntity();
-                    backButtonEntity.setHeight(15);
-                    backButtonEntity.setWidth(20);
-                    backButtonEntity.add(GuiElements.createButton("<", 20,
-                            u -> u.getLastUpdateEvent().base.pop()));
+                            final UIEntity backButtonEntity = new UIEntity();
+                            backButtonEntity.setHeight(15);
+                            backButtonEntity.setWidth(20);
+                            backButtonEntity.add(GuiElements.createButton("<", 20,
+                                    u -> u.getLastUpdateEvent().base.pop()));
 
-                    lowerEntity.add(backButtonEntity);
+                            lowerEntity.add(backButtonEntity);
 
-                    final UIEntity labelEntity = new UIEntity();
-                    labelEntity.setHeight(15);
-                    labelEntity.setInheritWidth(true);
-                    labelEntity
-                            .add(new UILabel(I18Wrapper.format("gui.trainnumber.info.select_point"),
+                            final UIEntity labelEntity = new UIEntity();
+                            labelEntity.setHeight(15);
+                            labelEntity.setInheritWidth(true);
+                            labelEntity.add(new UILabel(
+                                    I18Wrapper.format("gui.trainnumber.info.select_point"),
                                     lowerEntity.getInfoTextColor()));
 
-                    lowerEntity.add(labelEntity);
+                            lowerEntity.add(labelEntity);
 
-                    screen.add(lowerEntity);
-                })));
+                            screen.add(lowerEntity);
+                        })));
         changeButton.add(new UIToolTip(I18Wrapper.format("gui.trainnumber.setpoint.desc")));
         inner.add(changeButton);
         inner.add(GuiElements.createSpacerV(5));
