@@ -15,7 +15,7 @@ public class SignalAnimationRotation implements SignalAnimation {
     private final float rotation;
     private final VectorWrapper pivot;
     private final float finalRotationValue;
-    
+
     private float step;
     private float progress;
 
@@ -31,12 +31,12 @@ public class SignalAnimationRotation implements SignalAnimation {
     }
 
     @Override
-    public void updateAnimation(float tick) {
-    	progress += step * tick;
+    public void updateAnimation(final float tick) {
+        progress += step * tick;
     }
 
     @Override
-    public void setUpAnimationValues(final ModelTranslation currentTranslation) {        
+    public void setUpAnimationValues(final ModelTranslation currentTranslation) {
         final Vector3f vec = currentTranslation.getQuaternion().toYXZ();
         switch (axis) {
             case X: {
@@ -55,7 +55,7 @@ public class SignalAnimationRotation implements SignalAnimation {
                 break;
         }
         this.step = SignalAnimationHandler.BASIC_ANIMATION_SPEED * animationSpeed;
-        if(finalRotationValue < progress)
+        if (finalRotationValue < progress)
             this.step *= -1;
     }
 
@@ -71,11 +71,12 @@ public class SignalAnimationRotation implements SignalAnimation {
 
     @Override
     public boolean isFinished() {
-        return this.step > 0 ? (progress > finalRotationValue):(finalRotationValue > progress);
+        return this.step > 0 ? (progress > finalRotationValue) : (finalRotationValue > progress);
     }
 
     @Override
-    public void reset() {}
+    public void reset() {
+    }
 
     @Override
     public boolean test(final ModelInfoWrapper wrapper) {
@@ -94,8 +95,7 @@ public class SignalAnimationRotation implements SignalAnimation {
 
     @Override
     public int hashCode() {
-        return Objects.hash(animationSpeed, axis, finalRotationValue, pivot, predicate,
-                rotation);
+        return Objects.hash(animationSpeed, axis, finalRotationValue, pivot, predicate, rotation);
     }
 
     @Override

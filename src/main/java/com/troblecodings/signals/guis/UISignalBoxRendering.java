@@ -97,7 +97,7 @@ public class UISignalBoxRendering extends UIComponent {
     private final Map<Point, String> trainNumbers = new HashMap<>();
     private final Set<ColorPoint> additionalPoints = new HashSet<>();
 
-    public UISignalBoxRendering(final SignalBoxGrid grid, boolean showLines,
+    public UISignalBoxRendering(final SignalBoxGrid grid, final boolean showLines,
             final SignalBoxConsumer consumer, final UIEntity gridParent) {
         this.showLines = showLines;
         this.consumer = consumer;
@@ -107,31 +107,31 @@ public class UISignalBoxRendering extends UIComponent {
         nodes.forEach(this::addNode);
     }
 
-    private void addNode(SignalBoxNode node) {
-        Map<ModeSet, ModeRenderInfo> modesets = gridRender.computeIfAbsent(node.getPoint(),
+    private void addNode(final SignalBoxNode node) {
+        final Map<ModeSet, ModeRenderInfo> modesets = gridRender.computeIfAbsent(node.getPoint(),
                 k -> Maps.newHashMap());
         node.forEach(modeSet -> modesets.put(modeSet,
                 new ModeRenderInfo(modeSet.mode, node.getState(modeSet))));
         gridRender.put(node.getPoint(), modesets);
     }
 
-    public void removeMode(Point point, ModeSet modeSet) {
+    public void removeMode(final Point point, final ModeSet modeSet) {
         gridRender.computeIfPresent(point, (p, f) -> {
             f.computeIfPresent(modeSet, (a, b) -> null);
             return f.isEmpty() ? null : f;
         });
     }
 
-    public void addMode(Point point, ModeSet modeSet) {
+    public void addMode(final Point point, final ModeSet modeSet) {
         gridRender.computeIfAbsent(point, k -> Maps.newHashMap()).put(modeSet,
                 new ModeRenderInfo(modeSet.mode, SignalState.RED));
     }
 
-    public boolean has(Point point, ModeSet modeSet) {
+    public boolean has(final Point point, final ModeSet modeSet) {
         return gridRender.containsKey(point) && gridRender.get(point).containsKey(modeSet);
     }
 
-    private void drawModeSets(DrawInfo info, Map<ModeSet, ModeRenderInfo> render) {
+    private void drawModeSets(final DrawInfo info, final Map<ModeSet, ModeRenderInfo> render) {
         render.forEach((set, rInfo) -> {
             info.push();
             info.translate(HALF_TILE, HALF_TILE, 0);
@@ -147,12 +147,12 @@ public class UISignalBoxRendering extends UIComponent {
         trainNumbers.put(point, text);
     }
 
-    public boolean hasSelection(int c, Point point, SelectionType type) {
+    public boolean hasSelection(final int c, final Point point, final SelectionType type) {
         final ColorPoint colorPoint = colorSelections[type.ordinal()];
         return colorPoint == null ? false : colorPoint.equals(new ColorPoint(point, c));
     }
 
-    public void addSelection(int c, Point point, SelectionType type) {
+    public void addSelection(final int c, final Point point, final SelectionType type) {
         final ColorPoint colorPoint = new ColorPoint(point, c);
         if (colorSelections[type.ordinal()] == colorPoint) {
             colorSelections[type.ordinal()] = null;
@@ -180,13 +180,13 @@ public class UISignalBoxRendering extends UIComponent {
     }
 
     @Override
-    public void mouseEvent(MouseEvent event) {
+    public void mouseEvent(final MouseEvent event) {
         if (!this.visible)
             return;
         if (!this.gridParent.isHovered())
             return;
-        double x = event.x - parent.getLevelX();
-        double y = event.y - parent.getLevelY();
+        final double x = event.x - parent.getLevelX();
+        final double y = event.y - parent.getLevelY();
         final double actualWidth = TILE_WIDTH * parent.getScaleX();
         final Point point = new Point((int) (x / actualWidth), (int) (y / actualWidth));
         if (event.state == EnumMouseState.RELEASE) {
@@ -244,18 +244,18 @@ public class UISignalBoxRendering extends UIComponent {
     }
 
     public static class BoxEntity {
-        UIEntity entity;
-        UISignalBoxRendering rendering;
 
-        public BoxEntity(UIEntity entity, UISignalBoxRendering rendering) {
-            super();
+        public final UIEntity entity;
+        public final UISignalBoxRendering rendering;
+
+        public BoxEntity(final UIEntity entity, final UISignalBoxRendering rendering) {
             this.entity = entity;
             this.rendering = rendering;
         }
     }
 
-    public static BoxEntity createSignalBoxEntity(final SignalBoxGrid sigGrid, boolean showLines,
-            SignalBoxConsumer consumer) {
+    public static BoxEntity createSignalBoxEntity(final SignalBoxGrid sigGrid,
+            final boolean showLines, final SignalBoxConsumer consumer) {
         final UIEntity grid = new UIEntity();
         grid.setInherits(true);
         grid.add(new UIColor(GuiSignalBox.BACKGROUND_COLOR));
@@ -312,12 +312,13 @@ public class UISignalBoxRendering extends UIComponent {
     }
 
     private class ModeRenderInfo {
-        public SignalState state;
+
+        public final SignalState state;
         public int color;
         private final EnumGuiMode mode;
         public final Consumer<DrawInfo> component;
 
-        public ModeRenderInfo(EnumGuiMode mode, SignalState state) {
+        public ModeRenderInfo(final EnumGuiMode mode, final SignalState state) {
             this.color = mode.getDefaultColor();
             this.state = state;
             final BiConsumer<DrawInfo, Integer> component = mode.consumer.apply(state);
@@ -325,7 +326,7 @@ public class UISignalBoxRendering extends UIComponent {
             this.component = (info) -> component.accept(info, color);
         }
 
-        public ModeRenderInfo(ModeRenderInfo old, SignalState state) {
+        public ModeRenderInfo(final ModeRenderInfo old, final SignalState state) {
             this.mode = old.mode;
             this.color = old.color;
             this.state = state;
@@ -340,11 +341,11 @@ public class UISignalBoxRendering extends UIComponent {
     }
 
     private static class ColorPoint {
-        public Point point;
-        public int color;
 
-        public ColorPoint(Point point, int color) {
-            super();
+        public final Point point;
+        public final int color;
+
+        public ColorPoint(final Point point, final int color) {
             this.point = point;
             this.color = color;
         }
@@ -355,14 +356,14 @@ public class UISignalBoxRendering extends UIComponent {
         }
 
         @Override
-        public boolean equals(Object obj) {
+        public boolean equals(final Object obj) {
             if (this == obj)
                 return true;
             if (obj == null)
                 return false;
             if (getClass() != obj.getClass())
                 return false;
-            ColorPoint other = (ColorPoint) obj;
+            final ColorPoint other = (ColorPoint) obj;
             return color == other.color && Objects.equals(point, other.point);
         }
 
