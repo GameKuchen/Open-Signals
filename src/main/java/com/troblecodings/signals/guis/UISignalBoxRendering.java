@@ -92,8 +92,8 @@ public class UISignalBoxRendering extends UIComponent {
     }
 
     private void addNode(final SignalBoxNode node) {
-        final Map<ModeSet, ModeRenderInfo> modesets = gridRender.computeIfAbsent(node.getPoint(),
-                k -> Maps.newHashMap());
+        final Map<ModeSet, ModeRenderInfo> modesets =
+                gridRender.computeIfAbsent(node.getPoint(), k -> Maps.newHashMap());
         node.forEach(modeSet -> modesets.put(modeSet,
                 new ModeRenderInfo(modeSet.mode, node.getState(modeSet))));
         gridRender.put(node.getPoint(), modesets);
@@ -101,10 +101,11 @@ public class UISignalBoxRendering extends UIComponent {
     }
 
     public void updateNodeLabeling(final Point point, final String labeling) {
-        if (labeling.isEmpty())
+        if (labeling.isEmpty()) {
             nodeLabeling.remove(point);
-        else
+        } else {
             nodeLabeling.put(point, labeling);
+        }
     }
 
     public void removeMode(final Point point, final ModeSet modeSet) {
@@ -137,6 +138,14 @@ public class UISignalBoxRendering extends UIComponent {
 
     public void putTrainNumber(final Point point, final String text) {
         trainNumbers.put(point, text);
+    }
+
+    public void removeTrainNumber(final Point point) {
+        trainNumbers.remove(point);
+    }
+
+    public void clearTrainNumbers() {
+        trainNumbers.clear();
     }
 
     public boolean hasSelection(final int c, final Point point, final SelectionType type) {
@@ -188,8 +197,9 @@ public class UISignalBoxRendering extends UIComponent {
 
     @Override
     public void draw(final DrawInfo info) {
-        if (showLines)
+        if (showLines) {
             info.lines(GRID_COLOR, 0.5f, ALL_LINES);
+        }
         gridRender.forEach((point, modelist) -> {
             info.push();
             info.translate(TILE_WIDTH * point.getX(), TILE_WIDTH * point.getY(), 0);
@@ -197,8 +207,9 @@ public class UISignalBoxRendering extends UIComponent {
             info.pop();
         });
         for (final ColorPoint c : colorSelections) {
-            if (c != null)
+            if (c != null) {
                 renderColorPoint(info, c);
+            }
         }
         for (final ColorPoint c : additionalPoints) {
             renderColorPoint(info, c);
@@ -232,7 +243,7 @@ public class UISignalBoxRendering extends UIComponent {
         info.blendOn();
         info.applyColor();
         final BufferWrapper wrapper = info.builder(Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-        wrapper.quad(0, (int) TILE_WIDTH, 0, (int) TILE_WIDTH, c.color);
+        wrapper.quad(0, TILE_WIDTH, 0, TILE_WIDTH, c.color);
         info.end();
         info.pop();
     }
@@ -263,8 +274,8 @@ public class UISignalBoxRendering extends UIComponent {
         final UIEntity entity = new UIEntity();
         entity.setWidth(TILE_WIDTH * TILE_COUNT);
         entity.setHeight(entity.getHeight());
-        final UISignalBoxRendering rendering = new UISignalBoxRendering(sigGrid, showLines,
-                consumer, grid);
+        final UISignalBoxRendering rendering =
+                new UISignalBoxRendering(sigGrid, showLines, consumer, grid);
         entity.add(rendering);
 
         grid.add(new UIScroll(s -> {
