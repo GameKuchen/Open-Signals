@@ -25,7 +25,7 @@ public class StateLoadHolder {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        final SignalStateLoadHoler other = (SignalStateLoadHoler) obj;
+        final StateLoadHolder other = (StateLoadHolder) obj;
         return Objects.equals(holder, other.holder) && Objects.equals(info, other.info);
     }
 
