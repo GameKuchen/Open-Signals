@@ -22,6 +22,7 @@ import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -50,7 +51,10 @@ public class GhostBlock extends BasicBlock {
             final CollisionContext context) {
         final BlockPos lowerPos = pos.below();
         final BlockState lowerState = getter.getBlockState(lowerPos);
-        return lowerState.getBlock().getShape(lowerState, getter, lowerPos, context).move(0, -1, 0);
+        final Block lowerBlock = lowerState.getBlock();
+        if (isRightBlock(lowerBlock))
+            return lowerBlock.getShape(lowerState, getter, lowerPos, context).move(0, -1, 0);
+        return Shapes.block();
     }
 
     @Override
@@ -79,7 +83,12 @@ public class GhostBlock extends BasicBlock {
     @Override
     public ItemStack getCloneItemStack(final BlockState state, final HitResult target,
             final BlockGetter level, final BlockPos pos, final Player player) {
-        return ItemStack.EMPTY;
+        final BlockPos downPos = pos.below();
+        final BlockState lowerState = level.getBlockState(downPos);
+        final Block lowerBlock = lowerState.getBlock();
+        if (isRightBlock(lowerBlock))
+            return lowerBlock.getCloneItemStack(lowerState, target, level, downPos, player);
+        return super.getCloneItemStack(state, target, level, pos, player);
     }
 
     @SuppressWarnings("deprecation")
@@ -88,7 +97,13 @@ public class GhostBlock extends BasicBlock {
             final Player player, final InteractionHand hand, final BlockHitResult result) {
         final BlockPos lowerPos = pos.below();
         final BlockState lowerState = world.getBlockState(lowerPos);
-        return lowerState.getBlock().use(lowerState, world, lowerPos, player, hand,
-                result.withPosition(lowerPos));
+        final Block lowerBlock = lowerState.getBlock();
+        if (isRightBlock(lowerBlock))
+            return lowerBlock.use(lowerState, world, lowerPos, player, hand, result);
+        return InteractionResult.FAIL;
+    }
+
+    private static boolean isRightBlock(final Block block) {
+        return block instanceof Signal || block instanceof GhostBlock;
     }
 }
