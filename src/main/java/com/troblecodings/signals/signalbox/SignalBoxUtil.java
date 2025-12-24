@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.google.common.collect.ImmutableList;
+import com.troblecodings.signals.OpenSignalsMain;
 import com.troblecodings.signals.blocks.RedstoneIO;
 import com.troblecodings.signals.config.ConfigHandler;
 import com.troblecodings.signals.core.ModeIdentifier;
@@ -19,6 +20,7 @@ import com.troblecodings.signals.enums.PathwayRequestResult.PathwayRequestMode;
 import com.troblecodings.signals.signalbox.entrys.PathEntryType;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -135,12 +137,10 @@ public final class SignalBoxUtil {
                     grid.sendDebugPointUpdates(debugPointList);
                     debugPointList.clear();
                 }
-                if (nodes.size() < 2) {
+                if (nodes.size() < 2)
                     return PathwayRequestResult.getByMode(PathwayRequestMode.NO_PATH);
-                }
-                if (!checkForValidEnd(pathType, nodes.get(0), nodes.get(1))) {
+                if (!checkForValidEnd(pathType, nodes.get(0), nodes.get(1)))
                     return PathwayRequestResult.getByMode(PathwayRequestMode.NO_EQUAL_PATH_TYPE);
-                }
                 return new PathwayRequestResult(PathwayRequestMode.PASS,
                         PathwayData.of(grid, nodes, pathType));
             }
@@ -238,11 +238,12 @@ public final class SignalBoxUtil {
     private static boolean checkForValidEnd(final PathType type, final SignalBoxNode lastNode,
             final SignalBoxNode previous) {
         final Point delta = lastNode.getPoint().delta(previous.getPoint());
-        final Rotation rotation = SignalBoxUtil.getRotationFromDelta(delta)
-                .getRotated(Rotation.CLOCKWISE_180);
+        final Rotation rotation =
+                SignalBoxUtil.getRotationFromDelta(delta).getRotated(Rotation.CLOCKWISE_180);
         for (final EnumGuiMode mode : type.getModes()) {
-            if (!mode.getModeType().isValidEnd())
+            if (!mode.getModeType().isValidEnd()) {
                 continue;
+            }
             final ModeSet modeSet = new ModeSet(mode, getModeRot(rotation, mode));
             if (lastNode.has(modeSet))
                 return true;
@@ -261,15 +262,23 @@ public final class SignalBoxUtil {
         final AtomicBoolean bool = new AtomicBoolean(false);
         node.getOption(path)
                 .ifPresent(entry -> entry.getEntry(PathEntryType.BLOCKING).ifPresent(pos -> {
-                    if (isPowerd(grid.tile, pos))
+                    if (isPowerd(grid.tile, pos)) {
                         bool.set(true);
+                    }
                 }));
 
         return bool.get();
     }
 
     private static boolean isPowerd(final SignalBoxTileEntity tile, final BlockPos pos) {
-        final BlockState state = tile.getLevel().getBlockState(pos);
+        final Level world = tile.getLevel();
+        if (world == null) {
+            OpenSignalsMain.getLogger()
+                    .error("The world is null when trying to load a blockstate to create a pathway!"
+                            + " This should't be so!");
+            return false;
+        }
+        final BlockState state = world.getBlockState(pos);
         if (state == null || !(state.getBlock() instanceof RedstoneIO))
             return false;
         return state.getValue(RedstoneIO.POWER);
