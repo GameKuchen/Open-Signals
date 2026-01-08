@@ -101,9 +101,10 @@ public class SignalTileEntity extends SyncableTileEntity implements NamableWrapp
     @OnlyIn(Dist.CLIENT)
     @Override
     public void requestModelDataUpdate() {
-        final Map<SEProperty, String> newProperties =
-                ClientSignalStateHandler.getClientStates(new StateInfo(level, worldPosition));
-        handler.updateStates(newProperties, properties);
+        final Map<SEProperty, String> newProperties = ClientSignalStateHandler
+                .getClientStates(new StateInfo(level, worldPosition));
+        final boolean wasEmpty = properties.isEmpty();
+        handler.updateStates(newProperties, wasEmpty);
         this.properties.clear();
         this.properties.putAll(newProperties);
         super.requestModelDataUpdate();
@@ -114,10 +115,11 @@ public class SignalTileEntity extends SyncableTileEntity implements NamableWrapp
         if (!level.isClientSide) {
             SignalStateHandler.addListener(new SignalStateInfo(level, worldPosition, getSignal()),
                     listener);
-        } else {
-            if (getSignal().hasAnimation()) {
-                handler.updateAnimationListFromBlock();
-            }
+        } else if (getSignal().hasAnimation()) {
+            handler.updateAnimationListFromBlock();
+            handler.updateStates(
+                    ClientSignalStateHandler.getClientStates(new StateInfo(level, worldPosition)),
+                    true);
         }
     }
 

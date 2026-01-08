@@ -47,15 +47,16 @@ public class SignalAnimationHandler {
         if (!(state.getBlock() instanceof Signal))
             return;
         final long currentTick = Util.getMillis();
-        if (lastWorldTick < 0)
+        if (lastWorldTick < 0) {
             this.lastWorldTick = currentTick;
+        }
         final SignalAngel angle = state.getValue(Signal.ANGEL);
         final ModelBlockRenderer renderer = info.dispatcher.getModelRenderer();
         final VertexConsumer vertex = info.source
                 .getBuffer(ItemBlockRenderTypes.getRenderType(state, false));
         final IModelData data = tile.getModelData();
 
-        final float tick = (float) (currentTick - this.lastWorldTick);
+        final float tick = currentTick - this.lastWorldTick;
         this.lastWorldTick = currentTick;
 
         animationPerModel.forEach((model, entry) -> {
@@ -90,12 +91,14 @@ public class SignalAnimationHandler {
         translation.setUpNewTranslation(animation.getModelTranslation());
     }
 
-    public void updateStates(final Map<SEProperty, String> newProperties,
-            final Map<SEProperty, String> oldProperties) {
-        if (oldProperties.isEmpty()) {
-            updateToFinalizedAnimations(new ModelInfoWrapper(newProperties));
+    public void updateStates(final Map<SEProperty, String> properties, final boolean firstLoad) {
+        if (properties == null || properties.isEmpty())
+            return;
+        final ModelInfoWrapper wrapper = new ModelInfoWrapper(properties);
+        if (firstLoad) {
+            updateToFinalizedAnimations(wrapper);
         } else {
-            updateAnimations(new ModelInfoWrapper(newProperties));
+            updateAnimations(wrapper);
         }
     }
 
