@@ -121,7 +121,6 @@ public class SidePanel {
             spacerEntity.setWidth(85);
             helpPage.clearChildren();
             helpPage.add(infoEntity);
-            lowerEntity.update();
         } else {
             helpPageButton.setText("<-");
             helpPage.clearChildren();
@@ -129,8 +128,8 @@ public class SidePanel {
             helpPage.add(getIcons());
             helpPage.add(label);
             spacerEntity.setWidth(20);
-            lowerEntity.update();
         }
+        lowerEntity.update();
         infoEntity.forEach(entity -> entity.setVisible(showHelpPage));
         label.setVisible(true);
         button.setVisible(true);
@@ -514,14 +513,12 @@ public class SidePanel {
                                                 textureEntity.add(
                                                         new UITexture(GuiSignalBox.REDSTONE_OFF));
                                             }
+                                        } else if (!usage.equals(EnumPathUsage.FREE)) {
+                                            textureEntity.add(new UITexture(
+                                                    GuiSignalBox.REDSTONE_ON_BLOCKED));
                                         } else {
-                                            if (!usage.equals(EnumPathUsage.FREE)) {
-                                                textureEntity.add(new UITexture(
-                                                        GuiSignalBox.REDSTONE_ON_BLOCKED));
-                                            } else {
-                                                textureEntity.add(new UITexture(
-                                                        GuiSignalBox.REDSTONE_OFF_BLOCKED));
-                                            }
+                                            textureEntity.add(new UITexture(
+                                                    GuiSignalBox.REDSTONE_OFF_BLOCKED));
                                         }
                                         info.add(textureEntity);
                                         final UILabel outputStatus = new UILabel(
@@ -758,12 +755,10 @@ public class SidePanel {
                         } else {
                             textureEntity.add(new UITexture(GuiSignalBox.REDSTONE_OFF));
                         }
+                    } else if (!pathUsage.equals(EnumPathUsage.FREE)) {
+                        textureEntity.add(new UITexture(GuiSignalBox.REDSTONE_ON_BLOCKED));
                     } else {
-                        if (!pathUsage.equals(EnumPathUsage.FREE)) {
-                            textureEntity.add(new UITexture(GuiSignalBox.REDSTONE_ON_BLOCKED));
-                        } else {
-                            textureEntity.add(new UITexture(GuiSignalBox.REDSTONE_OFF_BLOCKED));
-                        }
+                        textureEntity.add(new UITexture(GuiSignalBox.REDSTONE_OFF_BLOCKED));
                     }
                     info.add(textureEntity);
                     final UILabel outputStatus = new UILabel(
