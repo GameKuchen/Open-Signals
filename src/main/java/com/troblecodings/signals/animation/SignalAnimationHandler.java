@@ -147,7 +147,7 @@ public class SignalAnimationHandler {
             final BakedModel model = SignalCustomModel.getModelFromLocation(
                     new ResourceLocation(OpenSignalsMain.MODID, entry.getKey()));
             final ModelTranslation translation = new ModelTranslation(VectorWrapper.ZERO,
-                    new Quaternion(0, 0, 0, 0));
+                    Quaternion.ONE);
             translation.setModelTranslation(entry.getValue().copy());
             animationPerModel.put(model, Maps.immutableEntry(translation, animations.stream()
                     .map(animation -> animation.copy()).collect(Collectors.toList())));
