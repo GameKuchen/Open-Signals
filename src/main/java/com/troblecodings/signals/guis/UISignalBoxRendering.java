@@ -1,5 +1,6 @@
 package com.troblecodings.signals.guis;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -170,9 +171,7 @@ public class UISignalBoxRendering extends UIComponent {
     }
 
     public void clearSelection() {
-        for (int i = 0; i < colorSelections.length; i++) {
-            colorSelections[i] = null;
-        }
+        Arrays.fill(colorSelections, null);
     }
 
     public void addColoredPoint(final int c, final Point point) {
@@ -185,9 +184,7 @@ public class UISignalBoxRendering extends UIComponent {
 
     @Override
     public void mouseEvent(final MouseEvent event) {
-        if (!this.visible)
-            return;
-        if (!this.gridParent.isHovered())
+        if (!this.visible || !this.gridParent.isHovered())
             return;
         final double x = event.x - parent.getLevelX();
         final double y = event.y - parent.getLevelY();
@@ -235,7 +232,7 @@ public class UISignalBoxRendering extends UIComponent {
             final String str, final int restHeight, final int restWidth, final int color,
             final float scale) {
         info.push();
-        info.translate(TILE_WIDTH * point.getX(), TILE_WIDTH * point.getY(), 0);
+        info.translate(TILE_WIDTH * point.getX(), TILE_WIDTH * point.getY(), 10);
         if (!rot.equals(Rotation.NONE)) {
             info.translate(HALF_TILE, HALF_TILE, 0);
             info.rotate(Quaternion.fromXYZ(0, 0, rot.ordinal() * UIRotate.PERPENDICULAR_ANGLE));
@@ -378,9 +375,7 @@ public class UISignalBoxRendering extends UIComponent {
         public boolean equals(final Object obj) {
             if (this == obj)
                 return true;
-            if (obj == null)
-                return false;
-            if (getClass() != obj.getClass())
+            if ((obj == null) || (getClass() != obj.getClass()))
                 return false;
             final ColorPoint other = (ColorPoint) obj;
             return color == other.color && Objects.equals(point, other.point);
