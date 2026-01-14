@@ -57,14 +57,15 @@ public class ClientSignalStateHandler implements INetworkSync {
             properties.putAll(newProperties);
             CURRENTLY_LOADED_STATES.put(stateInfo, properties);
         }
+        if (level == null)
+            return;
         final long startTime = Calendar.getInstance().getTimeInMillis();
         SERVICE.execute(() -> {
             BlockEntity entity;
             while ((entity = level.getBlockEntity(signalPos)) == null) {
                 final long currentTime = Calendar.getInstance().getTimeInMillis();
-                if (currentTime - startTime >= 5000) {
+                if (currentTime - startTime >= 5000)
                     return;
-                }
                 continue;
             }
             final BlockState state = entity.getBlockState();
