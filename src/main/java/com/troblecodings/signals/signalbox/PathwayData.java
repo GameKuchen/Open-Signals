@@ -227,7 +227,6 @@ public class PathwayData {
                 directResetOfProtectionWay();
                 final Level world = pathway.tile.getLevel();
                 world.getServer().execute(() -> {
-                    pathway.grid.updateToNet(pathway);
                     removeProtectionWay();
                 });
             }).start();
@@ -289,7 +288,7 @@ public class PathwayData {
                         .ifPresent(value -> zs6State.set(value.booleanValue()));
                 optionEntry.getEntry(PathEntryType.CONNECTED_TRAINNUMBER).ifPresent(ident -> {
                     final Optional<PathOptionEntry> entry = grid.getNodeChecked(ident.point)
-                            .orElse(new SignalBoxNode()).getOption(ident.mode);
+                            .orElse(new SignalBoxNode(grid.getNetwork())).getOption(ident.mode);
                     if (entry.isPresent()) {
                         trainNumberDisplays.add(ident);
                     } else {
@@ -363,7 +362,9 @@ public class PathwayData {
             posIdents.removeIf(ident -> !grid.getNode(ident.getPoint()).has(ident.getModeSet()));
             this.preSignals = ImmutableList.copyOf(posIdents.stream().map(ident -> {
                 final PathOptionEntry vpEntry = grid.getNode(ident.getPoint())
-                        .getOption(ident.getModeSet()).orElse(new PathOptionEntry());
+                        .getOption(ident.getModeSet())
+                        .orElse(SignalBoxFactory.getFactory().getEntry(
+                                new ModeIdentifier(ident.getPoint(), ident.getModeSet())));
                 return new OtherSignalIdentifier(ident.getPoint(), ident.getModeSet(), ident.pos,
                         vpEntry.getEntry(PathEntryType.SIGNAL_REPEATER).orElse(false),
                         EnumGuiMode.VP, grid);
