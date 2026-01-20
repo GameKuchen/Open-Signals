@@ -161,8 +161,7 @@ public class PathwayData {
                 this.initalize();
                 break;
             }
-            if (current.isUsedInDirection(oldPos, EnumPathUsage.PROTECTED)
-                    || SignalBoxUtil.isPathBlocked(grid, current, path))
+            if (current.isUsedInDirection(oldPos, EnumPathUsage.PROTECTED))
                 return false;
         }
         return true;
