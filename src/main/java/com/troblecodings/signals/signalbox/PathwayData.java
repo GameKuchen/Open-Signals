@@ -38,8 +38,10 @@ import com.troblecodings.signals.signalbox.entrys.PathEntryType;
 import com.troblecodings.signals.signalbox.entrys.PathOptionEntry;
 import com.troblecodings.signals.tileentitys.IChunkLoadable;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Rotation;
 
 public class PathwayData {
 
@@ -219,17 +221,16 @@ public class PathwayData {
                     Thread.sleep(protectionWayResetDelay * 1000);
                 } catch (final InterruptedException e) {
                 }
-                final Level world = pathway.tile.getWorld();
-                world.getMinecraftServer()
-                        .addScheduledTask(() -> pathway.loadTileAndExecute(tile -> {
-                            final SignalBoxGrid grid = tile.getSignalBoxGrid();
-                            final SignalBoxPathway pw = grid.getPathwayByLastPoint(getLastPoint());
-                            if (pw == null)
-                                return;
-                            pw.directResetOfProtectionWay();
-                            pw.removeProtectionWay();
-                            grid.updateToNet(pw);
-                        }));
+                final Level world = pathway.tile.getLevel();
+                world.getServer().execute(() -> pathway.loadTileAndExecute(tile -> {
+                    final SignalBoxGrid grid = tile.getSignalBoxGrid();
+                    final SignalBoxPathway pw = grid.getPathwayByLastPoint(getLastPoint());
+                    if (pw == null)
+                        return;
+                    pw.directResetOfProtectionWay();
+                    pw.removeProtectionWay();
+                    grid.updateToNet(pw);
+                }));
             }).start();
             return true;
         }
