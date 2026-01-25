@@ -38,10 +38,8 @@ import com.troblecodings.signals.signalbox.entrys.PathEntryType;
 import com.troblecodings.signals.signalbox.entrys.PathOptionEntry;
 import com.troblecodings.signals.tileentitys.IChunkLoadable;
 
-import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Rotation;
+import net.minecraft.util.math.BlockPos;
 
 public class PathwayData {
 
@@ -148,8 +146,8 @@ public class PathwayData {
             if (option == null) {
                 continue;
             }
-            final EnumPathUsage usage = option.getEntry(PathEntryType.PATHUSAGE)
-                    .orElse(EnumPathUsage.FREE);
+            final EnumPathUsage usage =
+                    option.getEntry(PathEntryType.PATHUSAGE).orElse(EnumPathUsage.FREE);
             if (!(usage.equals(EnumPathUsage.FREE) || usage.equals(EnumPathUsage.PROTECTED))) {
                 final ArrayList<SignalBoxNode> listOfNodes = new ArrayList<>();
                 for (Point point = previous; point != null; point = newNodes.get(point)) {
@@ -175,8 +173,8 @@ public class PathwayData {
                 .getOption(signalIdent.getModeSet()).orElse(null);
         if ((option == null) || grid.startsToPath.containsKey(lastPoint))
             return true;
-        final Point protectionWayEnd = option.getEntry(PathEntryType.PROTECTIONWAY_END)
-                .orElse(lastPoint);
+        final Point protectionWayEnd =
+                option.getEntry(PathEntryType.PROTECTIONWAY_END).orElse(lastPoint);
         if (lastPoint.equals(protectionWayEnd))
             return true;
         this.protectionWayNodes = ImmutableList
@@ -216,19 +214,22 @@ public class PathwayData {
         if (protectionWayNodes.isEmpty())
             return false;
         if (protectionWayResetDelay > 0) {
-            final List<SignalBoxNode> copy = ImmutableList.copyOf(protectionWayNodes);
             new Thread(() -> {
                 try {
                     Thread.sleep(protectionWayResetDelay * 1000);
                 } catch (final InterruptedException e) {
                 }
-                this.protectionWayNodes = copy;
-                directResetOfProtectionWay();
-                final Level world = pathway.tile.getLevel();
-                world.getServer().execute(() -> {
-                    pathway.grid.updateToNet(pathway);
-                    removeProtectionWay();
-                });
+                final Level world = pathway.tile.getWorld();
+                world.getMinecraftServer()
+                        .addScheduledTask(() -> pathway.loadTileAndExecute(tile -> {
+                            final SignalBoxGrid grid = tile.getSignalBoxGrid();
+                            final SignalBoxPathway pw = grid.getPathwayByLastPoint(getLastPoint());
+                            if (pw == null)
+                                return;
+                            pw.directResetOfProtectionWay();
+                            pw.removeProtectionWay();
+                            grid.updateToNet(pw);
+                        }));
             }).start();
             return true;
         }
@@ -300,15 +301,15 @@ public class PathwayData {
                     }
                 });
             });
-            final Rotation rotation = SignalBoxUtil
-                    .getRotationFromDelta(node.getPoint().delta(path.point1));
+            final Rotation rotation =
+                    SignalBoxUtil.getRotationFromDelta(node.getPoint().delta(path.point1));
             for (final EnumGuiMode mode : Arrays.asList(EnumGuiMode.VP, EnumGuiMode.RS,
                     EnumGuiMode.HP, EnumGuiMode.ZS3)) {
                 final ModeSet modeSet = new ModeSet(mode, rotation);
                 node.getOption(modeSet).ifPresent(
                         option -> option.getEntry(PathEntryType.SIGNAL).ifPresent(position -> {
-                            final Optional<Boolean> repeaterOption = option
-                                    .getEntry(PathEntryType.SIGNAL_REPEATER);
+                            final Optional<Boolean> repeaterOption =
+                                    option.getEntry(PathEntryType.SIGNAL_REPEATER);
                             final OtherSignalIdentifier ident = new OtherSignalIdentifier(
                                     node.getPoint(), modeSet, position,
                                     repeaterOption.isPresent() && repeaterOption.get(), mode, grid);
@@ -343,22 +344,22 @@ public class PathwayData {
                 this.listOfNodes.get(this.listOfNodes.size() - 2), Rotation.NONE);
         final SignalBoxNode lastNode = this.listOfNodes.get(0);
         this.lastPoint = lastNode.getPoint();
-        final MainSignalIdentifier lastPos = makeFromNext(type, lastNode, this.listOfNodes.get(1),
-                Rotation.CLOCKWISE_180);
+        final MainSignalIdentifier lastPos =
+                makeFromNext(type, lastNode, this.listOfNodes.get(1), Rotation.CLOCKWISE_180);
         if (lastPos != null) {
             endSignal = Optional.of(lastPos);
-            final PathOptionEntry option = grid.getNode(lastPos.getPoint())
-                    .getOption(lastPos.getModeSet()).orElse(null);
-            this.protectionWayReset = option.getEntry(PathEntryType.PROTECTIONWAY_RESET)
-                    .orElse(null);
+            final PathOptionEntry option =
+                    grid.getNode(lastPos.getPoint()).getOption(lastPos.getModeSet()).orElse(null);
+            this.protectionWayReset =
+                    option.getEntry(PathEntryType.PROTECTIONWAY_RESET).orElse(null);
             this.protectionWayResetDelay = option.getEntry(PathEntryType.DELAY).orElse(0);
         }
         if (firstPos != null) {
             startSignal = Optional.of(firstPos);
-            final PathOptionEntry entry = grid.getNode(firstPos.getPoint())
-                    .getOption(firstPos.getModeSet()).orElse(null);
-            final List<PosIdentifier> posIdents = entry.getEntry(PathEntryType.PRESIGNALS)
-                    .orElse(new ArrayList<>());
+            final PathOptionEntry entry =
+                    grid.getNode(firstPos.getPoint()).getOption(firstPos.getModeSet()).orElse(null);
+            final List<PosIdentifier> posIdents =
+                    entry.getEntry(PathEntryType.PRESIGNALS).orElse(new ArrayList<>());
             posIdents.removeIf(ident -> !grid.getNode(ident.getPoint()).has(ident.getModeSet()));
             this.preSignals = ImmutableList.copyOf(posIdents.stream().map(ident -> {
                 final PathOptionEntry vpEntry = grid.getNode(ident.getPoint())
@@ -460,8 +461,8 @@ public class PathwayData {
     }
 
     private List<SignalBoxNode> getNodesFromNBT(final NBTWrapper tag, final String keyNBT) {
-        final com.google.common.collect.ImmutableList.Builder<SignalBoxNode> nodeBuilder = ImmutableList
-                .builder();
+        final com.google.common.collect.ImmutableList.Builder<SignalBoxNode> nodeBuilder =
+                ImmutableList.builder();
         tag.getList(keyNBT).forEach(nodeNBT -> {
             final SignalBoxNode node = getNodeFromNBT(nodeNBT);
             if (node == null)
@@ -564,8 +565,8 @@ public class PathwayData {
         final SignalBoxNode endNode = listOfNodes.get(0);
         PathOptionEntry outConnectionEntry = null;
         for (final Rotation rot : Rotation.values()) {
-            final Optional<PathOptionEntry> entry = endNode
-                    .getOption(new ModeSet(EnumGuiMode.OUT_CONNECTION, rot));
+            final Optional<PathOptionEntry> entry =
+                    endNode.getOption(new ModeSet(EnumGuiMode.OUT_CONNECTION, rot));
             if (entry.isPresent()) {
                 outConnectionEntry = entry.get();
                 break;
@@ -594,8 +595,8 @@ public class PathwayData {
                     }
                     if (inConnectionEntry == null)
                         return;
-                    final Optional<Point> otherEndPoint = inConnectionEntry
-                            .getEntry(PathEntryType.POINT);
+                    final Optional<Point> otherEndPoint =
+                            inConnectionEntry.getEntry(PathEntryType.POINT);
                     if (!otherEndPoint.isPresent())
                         return;
                     final PathwayRequestResult endRequeset = SignalBoxUtil.requestPathway(endGrid,
