@@ -63,8 +63,8 @@ public class ModeDropDownBoxUI {
 
     public UIEntity getTop() {
         final String modeName = I18Wrapper.format("property." + modeSet.mode.name());
-        final String rotationName = I18Wrapper
-                .format("property." + modeSet.rotation.name() + ".rotation");
+        final String rotationName =
+                I18Wrapper.format("property." + modeSet.rotation.name() + ".rotation");
 
         final UIEntity top = new UIEntity();
         top.setInheritWidth(true);
@@ -94,16 +94,16 @@ public class ModeDropDownBoxUI {
             return;
 
         final SignalBoxGrid grid = gui.container.grid;
-        final Set<Map.Entry<BlockPos, LinkType>> entrySet = gui.container.getPositionForTypes()
-                .entrySet();
+        final Set<Map.Entry<BlockPos, LinkType>> entrySet =
+                gui.container.getPositionForTypes().entrySet();
         final EnumGuiMode mode = modeSet.mode;
         final Rotation rotation = modeSet.rotation;
         switch (mode) {
             case CORNER:
             case STRAIGHT:
             case CROSSING: {
-                final EnumPathUsage path = option.getEntry(PathEntryType.PATHUSAGE)
-                        .orElse(EnumPathUsage.FREE);
+                final EnumPathUsage path =
+                        option.getEntry(PathEntryType.PATHUSAGE).orElse(EnumPathUsage.FREE);
                 final UIEntity stateEntity = new UIEntity();
                 stateEntity.setInheritWidth(true);
                 stateEntity.setHeight(15);
@@ -148,6 +148,7 @@ public class ModeDropDownBoxUI {
                 Optional<TCBoolean> opt = option.getEntry(PathEntryType.ZS6);
                 parent.add(GuiElements.createBoolElement(BoolIntegerables.of("zs6_state"), e -> {
                     final boolean state = e == 1 ? true : false;
+                    // TODO
                     option.setEntry(PathEntryType.ZS6, TCBoolean.valueOf(state));
                 }, opt.isPresent() && opt.get().booleanValue() ? 1 : 0));
             }
@@ -159,12 +160,16 @@ public class ModeDropDownBoxUI {
                 parent.add(
                         GuiElements.createBoolElement(BoolIntegerables.of("signal_repeater"), e -> {
                             final boolean state = e == 1 ? true : false;
-                            option.setEntry(PathEntryType.SIGNAL_REPEATER, state);
+                            if (state) {
+                                option.setEntry(PathEntryType.SIGNAL_REPEATER, state);
+                            } else {
+                                option.removeEntry(PathEntryType.SIGNAL_REPEATER);
+                            }
                         }, opt.isPresent() && opt.get() ? 1 : 0));
                 break;
             case HP: {
-                final List<PosIdentifier> preSignalsList = option.getEntry(PathEntryType.PRESIGNALS)
-                        .orElse(new ArrayList<>());
+                final List<PosIdentifier> preSignalsList =
+                        option.getEntry(PathEntryType.PRESIGNALS).orElse(new ArrayList<>());
                 final UIEntity preSignalEntity = GuiElements
                         .createButton(I18Wrapper.format("property.presignals.name"), e -> {
                             final UIEntity screen = new UIEntity();
@@ -179,7 +184,8 @@ public class ModeDropDownBoxUI {
                                                 .orElse(new SignalBoxNode(grid.getNetwork()));
                                         if (mouseKey != MouseEvent.LEFT_MOUSE || node.isEmpty())
                                             return;
-                                        final AtomicReference<PosIdentifier> vp = new AtomicReference<>();
+                                        final AtomicReference<PosIdentifier> vp =
+                                                new AtomicReference<>();
                                         node.getModes().forEach((nodeMode, entry) -> {
                                             if (!(nodeMode.mode.equals(EnumGuiMode.VP)
                                                     || nodeMode.mode.equals(EnumGuiMode.ZS3)))
@@ -223,9 +229,9 @@ public class ModeDropDownBoxUI {
 
                 final UIEntity protectionWay = GuiElements
                         .createButton(I18Wrapper.format("property.protectionway.name"), e -> {
-                            final Point selcetedPoint = option
-                                    .getEntry(PathEntryType.PROTECTIONWAY_END)
-                                    .orElse(new Point(-1, -1));
+                            final Point selcetedPoint =
+                                    option.getEntry(PathEntryType.PROTECTIONWAY_END)
+                                            .orElse(new Point(-1, -1));
 
                             final UIEntity screen = new UIEntity();
                             screen.setInherits(true);
@@ -239,9 +245,9 @@ public class ModeDropDownBoxUI {
                                                 .orElse(new SignalBoxNode(grid.getNetwork()));
                                         if (mouseKey != MouseEvent.LEFT_MOUSE || node.isEmpty())
                                             return;
-                                        final Point select = option
-                                                .getEntry(PathEntryType.PROTECTIONWAY_END)
-                                                .orElse(new Point(-1, -1));
+                                        final Point select =
+                                                option.getEntry(PathEntryType.PROTECTIONWAY_END)
+                                                        .orElse(new Point(-1, -1));
                                         if (point.equals(select)) {
                                             rendering.removeSelection(SelectionType.FIRST);
                                             option.removeEntry(PathEntryType.PROTECTIONWAY_END);
@@ -274,7 +280,11 @@ public class ModeDropDownBoxUI {
                 parent.add(GuiElements.createBoolElement(BoolIntegerables.of("can_be_overstepped"),
                         e -> {
                             final boolean state = e == 1 ? true : false;
-                            option.setEntry(PathEntryType.CAN_BE_OVERSTPEPPED, state);
+                            if (state) {
+                                option.setEntry(PathEntryType.CAN_BE_OVERSTPEPPED, state);
+                            } else {
+                                option.removeEntry(PathEntryType.CAN_BE_OVERSTPEPPED);
+                            }
                         },
                         option.getEntry(PathEntryType.CAN_BE_OVERSTPEPPED).orElse(false) ? 1 : 0));
                 break;
@@ -282,7 +292,11 @@ public class ModeDropDownBoxUI {
             case BUE: {
                 parent.add(GuiElements.createEnumElement(
                         new SizeIntegerables<>("delay", 60, get -> String.valueOf(get)), i -> {
-                            option.setEntry(PathEntryType.DELAY, i);
+                            if (i == 0) {
+                                option.removeEntry(PathEntryType.DELAY);
+                            } else {
+                                option.setEntry(PathEntryType.DELAY, i);
+                            }
                         }, option.getEntry(PathEntryType.DELAY).orElse(0)));
                 break;
             }
@@ -321,8 +335,8 @@ public class ModeDropDownBoxUI {
             case IN_CONNECTION: {
                 final UIEntity inConnections = GuiElements
                         .createButton(I18Wrapper.format("property.inconnection.name"), e -> {
-                            final Point selcetedPoint = option.getEntry(PathEntryType.POINT)
-                                    .orElse(new Point(-1, -1));
+                            final Point selcetedPoint =
+                                    option.getEntry(PathEntryType.POINT).orElse(new Point(-1, -1));
 
                             final UIEntity screen = new UIEntity();
                             screen.setInherits(true);
@@ -368,9 +382,9 @@ public class ModeDropDownBoxUI {
             case TRAIN_NUMBER: {
                 final UIEntity button = GuiElements
                         .createButton(I18Wrapper.format("btn.connect.trainnumber"), e -> {
-                            final ModeIdentifier identifier = option
-                                    .getEntry(PathEntryType.CONNECTED_TRAINNUMBER)
-                                    .orElse(new ModeIdentifier(new Point(-1, -1), null));
+                            final ModeIdentifier identifier =
+                                    option.getEntry(PathEntryType.CONNECTED_TRAINNUMBER)
+                                            .orElse(new ModeIdentifier(new Point(-1, -1), null));
                             final UIEntity screen = new UIEntity();
                             screen.setInherits(true);
                             screen.add(new UIBox(UIBox.VBOX, 5));
@@ -380,9 +394,9 @@ public class ModeDropDownBoxUI {
                                     gui.container.grid, false, (rendering, point, mouseKey) -> {
                                         if (mouseKey != MouseEvent.LEFT_MOUSE)
                                             return;
-                                        final SignalBoxNode node = gui.container.grid
-                                                .getNodeChecked(point)
-                                                .orElse(new SignalBoxNode(grid.getNetwork()));
+                                        final SignalBoxNode node =
+                                                gui.container.grid.getNodeChecked(point).orElse(
+                                                        new SignalBoxNode(grid.getNetwork()));
                                         if (node.isEmpty())
                                             return;
 
@@ -416,8 +430,8 @@ public class ModeDropDownBoxUI {
                                             gui.push(GuiElements.createSelectionScreen(enumerable,
                                                     SizeIntegerables.of("mode_select",
                                                             pathModes.size(), id -> {
-                                                                final ModeSet modeSet = pathModes
-                                                                        .get(id);
+                                                                final ModeSet modeSet =
+                                                                        pathModes.get(id);
                                                                 return modeSet.mode.toString()
                                                                         + " - "
                                                                         + SignalBoxUtil
@@ -444,8 +458,8 @@ public class ModeDropDownBoxUI {
         final PathOptionEntry optionEntry = node.getOption(mode).get();
         final ModeIdentifier thisIdent = new ModeIdentifier(this.node.getPoint(), modeSet);
         if (optionEntry.containsEntry(PathEntryType.CONNECTED_TRAINNUMBER)) {
-            final ModeIdentifier otherIdent = optionEntry
-                    .getEntry(PathEntryType.CONNECTED_TRAINNUMBER).get();
+            final ModeIdentifier otherIdent =
+                    optionEntry.getEntry(PathEntryType.CONNECTED_TRAINNUMBER).get();
             if (!thisIdent.equals(otherIdent)) {
                 gui.push(GuiElements.createScreen(screen -> {
                     final UIEntity entity = new UIEntity();
@@ -539,8 +553,8 @@ public class ModeDropDownBoxUI {
         textInputEntity.setInheritWidth(true);
         textInputEntity.setHeight(20);
 
-        final UITextInput input = new UITextInput(
-                String.valueOf(option.getEntry(type).orElse(defaultValue)));
+        final UITextInput input =
+                new UITextInput(String.valueOf(option.getEntry(type).orElse(defaultValue)));
         input.setValidator(str -> {
             if (str.isEmpty())
                 return true;
