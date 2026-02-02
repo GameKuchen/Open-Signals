@@ -53,6 +53,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition.Builder;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.material.Material;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -92,6 +93,10 @@ public class Signal extends BasicBlock {
             final SEProperty property = signalProperties.get(i);
             signalPropertiesToInt.put(property, i);
         }
+    }
+
+    public static Signal getSignalByID(final int id) {
+        return SIGNAL_IDS.get(id);
     }
 
     public int getID() {
@@ -149,8 +154,11 @@ public class Signal extends BasicBlock {
     @Override
     public VoxelShape getCollisionShape(final BlockState blockState, final BlockGetter worldIn,
             final BlockPos pos, final CollisionContext context) {
-        return Shapes.create(
-                Shapes.block().bounds().expandTowards(20, 10, 20).expandTowards(-20, -10, -20));
+        return getShape(blockState, worldIn, pos, context);
+    }
+
+    public Optional<AABB> getRenderBox() {
+        return prop.shape;
     }
 
     @Override
@@ -177,6 +185,10 @@ public class Signal extends BasicBlock {
 
     public List<SEProperty> getProperties() {
         return this.signalProperties;
+    }
+
+    public SEProperty getPropertyByIndex(final int index) {
+        return this.signalProperties.get(index);
     }
 
     public String getSignalTypeName() {
