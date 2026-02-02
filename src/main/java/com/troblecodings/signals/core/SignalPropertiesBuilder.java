@@ -148,17 +148,17 @@ public class SignalPropertiesBuilder {
         }
         this.colors = this.colors == null ? new ArrayList<>() : this.colors;
 
-        Optional<AxisAlignedBB> shape = Optional.empty();
+        Optional<AABB> shape = Optional.empty();
         if (customRenderBoundingBox != null) {
             if (customRenderBoundingBox.size() != 6) {
                 OpenSignalsMain.exitMinecraftWithMessage(
                         "Used wrong size of CustomRenderBoundingBox! Excepted: 6" + ", Actual: "
                                 + customRenderBoundingBox.size());
             }
-            shape = Optional.of(new AxisAlignedBB(customRenderBoundingBox.get(0),
-                    customRenderBoundingBox.get(1), customRenderBoundingBox.get(2),
-                    customRenderBoundingBox.get(3), customRenderBoundingBox.get(4),
-                    customRenderBoundingBox.get(5)));
+            shape = Optional
+                    .of(new AABB(customRenderBoundingBox.get(0), customRenderBoundingBox.get(1),
+                            customRenderBoundingBox.get(2), customRenderBoundingBox.get(3),
+                            customRenderBoundingBox.get(4), customRenderBoundingBox.get(5)));
         }
 
         return new SignalProperties(placementtool, customNameRenderHeight, defaultHeight,
