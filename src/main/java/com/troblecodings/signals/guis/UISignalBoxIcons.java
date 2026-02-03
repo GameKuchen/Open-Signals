@@ -2,7 +2,8 @@ package com.troblecodings.signals.guis;
 
 import com.troblecodings.signals.OpenSignalsMain;
 
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+
 public final class UISignalBoxIcons {
 
     private UISignalBoxIcons() {
