@@ -2,15 +2,10 @@ package com.troblecodings.signals.guis;
 
 import com.troblecodings.signals.OpenSignalsMain;
 
-import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-
-@OnlyIn(Dist.CLIENT)
+import net.minecraft.util.ResourceLocation;
 public final class UISignalBoxIcons {
 
     private UISignalBoxIcons() {
-
     }
 
     public static final ResourceLocation ICON =
