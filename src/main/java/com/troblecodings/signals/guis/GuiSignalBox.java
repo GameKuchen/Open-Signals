@@ -447,7 +447,7 @@ public class GuiSignalBox extends GuiBase {
             final UITexture texture = t.equals(LinkType.SIGNALBOX)
                     ? new UITexture(new ResourceLocation(OpenSignalsMain.MODID,
                             "textures/blocks/signalbox.png"))
-                    : new UITexture(ContainerSignalBox.ICON, 0.2 * id, 0.5, 0.2 * id + 0.2, 1);
+                    : new UITexture(UISignalBoxIcons.ICON, 0.2 * id, 0.5, 0.2 * id + 0.2, 1);
             icon.add(texture);
             icon.setHeight(20);
             icon.setWidth(20);

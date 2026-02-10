@@ -1,6 +1,10 @@
 # Changelog
 
-## [1.18.2 - 3.7.2]
+## [1.18.2 - 3.8.1]
+* fix: issues with loading NBT data of signal box
+* fix: issues with setting pathway with a overlap nearby
+
+## [1.18.2 - 3.8.0]
 * feat: added signal custom render bounding boxes `"customRenderBoundingBox": [x1,y1,z1,x2,y2,z2]`
 * feat: shunting path can now be set over overlap/protection path
 * feat/fix: Straight path element rotate only 0° and 90°

@@ -42,7 +42,6 @@ import com.troblecodings.signals.signalbox.entrys.PathEntryType;
 import com.troblecodings.signals.tileentitys.IChunkLoadable;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -50,25 +49,9 @@ import net.minecraft.world.level.block.Block;
 
 public class ContainerSignalBox extends ContainerBase implements UIClientSync, IChunkLoadable {
 
-    public static final ResourceLocation ICON = new ResourceLocation(OpenSignalsMain.MODID,
-            "gui/textures/symbols.png");
-    public static final ResourceLocation ARROW_ICON = new ResourceLocation(OpenSignalsMain.MODID,
-            "gui/textures/arrow.png");
-    public static final ResourceLocation INCOMING_ICON = new ResourceLocation(OpenSignalsMain.MODID,
-            "gui/textures/connection_in.png");
-    public static final ResourceLocation OUTGOING_ICON = new ResourceLocation(OpenSignalsMain.MODID,
-            "gui/textures/connection_out.png");
-    public static final ResourceLocation SIGNALS = new ResourceLocation(OpenSignalsMain.MODID,
-            "gui/textures/signals.png");
-    public static final ResourceLocation NE1_ICON = new ResourceLocation(OpenSignalsMain.MODID,
-            "gui/textures/ne1.png");
-    public static final ResourceLocation NE5_ICON = new ResourceLocation(OpenSignalsMain.MODID,
-            "gui/textures/ne5.png");
-    public static final ResourceLocation ZS3_ICON = new ResourceLocation(OpenSignalsMain.MODID,
-            "gui/textures/zs3.png");
-
     protected final Map<BlockPos, List<SubsidiaryState>> possibleSubsidiaries = new HashMap<>();
-    protected final Map<Point, Map<ModeSet, SubsidiaryState>> enabledSubsidiaryTypes = new HashMap<>();
+    protected final Map<Point, Map<ModeSet, SubsidiaryState>> enabledSubsidiaryTypes =
+            new HashMap<>();
     protected final Map<Map.Entry<Point, Point>, PathType> nextPathways = new HashMap<>();
     protected final Map<BlockPos, List<Point>> validInConnections = new HashMap<>();
     protected SignalBoxGrid grid;
@@ -233,10 +216,10 @@ public class ContainerSignalBox extends ContainerBase implements UIClientSync, I
             final Block signal = info.world.getBlockState(pos).getBlock();
             if (!(signal instanceof Signal))
                 return;
-            final Map<SEProperty, String> properties = ClientSignalStateHandler
-                    .getClientStates(info);
-            final Map<SubsidiaryState, ConfigProperty> subsidiaries = SubsidiarySignalParser.SUBSIDIARY_SIGNALS
-                    .get(signal);
+            final Map<SEProperty, String> properties =
+                    ClientSignalStateHandler.getClientStates(info);
+            final Map<SubsidiaryState, ConfigProperty> subsidiaries =
+                    SubsidiarySignalParser.SUBSIDIARY_SIGNALS.get(signal);
             if (subsidiaries == null)
                 return;
             final List<SubsidiaryState> validStates = new ArrayList<>();

@@ -171,8 +171,8 @@ public class ModeDropDownBoxUI {
                         }, opt.isPresent() && opt.get() ? 1 : 0));
                 break;
             case HP: {
-                final List<PosIdentifier> preSignalsList =
-                        option.getEntry(PathEntryType.PRESIGNALS).orElse(new ArrayList<>());
+                final List<PosIdentifier> preSignalsList = option.getEntry(PathEntryType.PRESIGNALS)
+                        .orElseGet(() -> new ArrayList<>());
                 final UIEntity preSignalEntity = GuiElements
                         .createButton(I18Wrapper.format("property.presignals.name"), e -> {
                             final UIEntity screen = new UIEntity();
@@ -184,7 +184,7 @@ public class ModeDropDownBoxUI {
                             final BoxEntity boxEntity = UISignalBoxRendering.createSignalBoxEntity(
                                     grid, false, (rendering, point, mouseKey) -> {
                                         final SignalBoxNode node = grid.getNodeChecked(point)
-                                                .orElse(new SignalBoxNode(grid.getNetwork()));
+                                                .orElseGet(() -> new SignalBoxNode());
                                         if (mouseKey != MouseEvent.LEFT_MOUSE || node.isEmpty())
                                             return;
                                         final AtomicReference<PosIdentifier> vp =
@@ -507,6 +507,11 @@ public class ModeDropDownBoxUI {
                     gui.container.grid, gui);
             rendering.removeSelection(SelectionType.FIRST);
         } else {
+            this.node.getOption(modeSet)
+                    .ifPresent(numberOption -> numberOption
+                            .getEntry(PathEntryType.CONNECTED_TRAINNUMBER)
+                            .ifPresent(entry -> disconnectFromEachOther(thisIdent, entry,
+                                    gui.container.grid, gui)));
             connectToEachOther(new ModeIdentifier(node.getPoint(), mode), thisIdent,
                     gui.container.grid, gui);
             rendering.addSelection(GuiSignalBox.SELECTION_COLOR, node.getPoint(),

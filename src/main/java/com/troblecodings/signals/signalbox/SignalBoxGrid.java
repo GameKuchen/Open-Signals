@@ -262,32 +262,30 @@ public class SignalBoxGrid implements INetworkSaveable, ISaveable {
         tryNextPathways();
     }
 
-    private final Map<Map.Entry<Point, Point>, PathType> toAdd = new HashMap<>();
-    private boolean executingForEach = false;
+    private boolean executingTryNextPWs = false;
 
     private void tryNextPathways() {
-        executingForEach = true;
-        final Map<Map.Entry<Point, Point>, PathType> toRemove = new HashMap<>();
-        nextPathways.forEach((entry, type) -> {
-            final PathwayRequestResult request = requestWay(entry.getKey(), entry.getValue(), type);
+        if (executingTryNextPWs)
+            return;
+        executingTryNextPWs = true;
+        ImmutableMap.copyOf(nextPathways).forEach((pointEntry, type) -> {
+            final PathwayRequestResult request =
+                    requestWay(pointEntry.getKey(), pointEntry.getValue(), type);
             if (request.wasSuccesfull()) {
-                if (tile == null || !tile.isBlocked()) {
-                    toRemove.put(entry, type);
-                    return;
+                nextPathways.remove(pointEntry);
+                if (tile != null && tile.isBlocked()) {
+                    final WriteBuffer buffer = new WriteBuffer();
+                    buffer.putEnumValue(SignalBoxNetwork.REMOVE_SAVEDPW);
+                    pointEntry.getKey().writeNetwork(buffer);
+                    pointEntry.getValue().writeNetwork(buffer);
+                    OpenSignalsMain.network.sendTo(tile.get(0).getPlayer(), buffer);
                 }
                 network.sendRemoveSavedPathway(entry.getKey(), entry.getValue());
                 toRemove.put(entry, type);
                 return;
             }
         });
-        executingForEach = false;
-        toRemove.keySet().forEach(nextPathways::remove);
-        toRemove.clear();
-        toAdd.forEach(nextPathways::put);
-        toAdd.clear();
-        if (startsToPath.isEmpty()) {
-            nextPathways.clear();
-        }
+        executingTryNextPWs = false;
     }
 
     public Map<Map.Entry<Point, Point>, PathType> getNextPathways() {
@@ -300,11 +298,7 @@ public class SignalBoxGrid implements INetworkSaveable, ISaveable {
             final SignalBoxPathway pw = startsToPath.get(start);
             if (pw != null && pw.isInterSignalBoxPathway())
                 return false;
-            if (executingForEach) {
-                toAdd.put(entry, type);
-            } else {
-                nextPathways.put(entry, type);
-            }
+            nextPathways.put(entry, type);
             return true;
         }
         return false;

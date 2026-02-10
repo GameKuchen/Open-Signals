@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 import com.google.common.collect.ImmutableList;
 import com.troblecodings.signals.OpenSignalsMain;
@@ -54,25 +55,21 @@ public final class SignalBoxUtil {
     }
 
     public static Point getDeltaFromRotation(final Rotation rot) {
-        if (rot.equals(Rotation.NONE))
-            return new Point(1, 0);
-        if (rot.equals(Rotation.CLOCKWISE_90))
-            return new Point(0, 1);
-        if (rot.equals(Rotation.CLOCKWISE_180))
-            return new Point(-1, 0);
-        if (rot.equals(Rotation.COUNTERCLOCKWISE_90))
-            return new Point(0, -1);
+        switch (rot) {
+            case NONE:
+                return new Point(1, 0);
+            case CLOCKWISE_90:
+                return new Point(0, 1);
+            case CLOCKWISE_180:
+                return new Point(-1, 0);
+            case COUNTERCLOCKWISE_90:
+                return new Point(0, -1);
+        }
         return new Point();
     }
 
     public static String getDegreeStringFromRotation(final Rotation rot) {
-        if (rot.equals(Rotation.CLOCKWISE_90))
-            return "90°";
-        if (rot.equals(Rotation.CLOCKWISE_180))
-            return "180°";
-        if (rot.equals(Rotation.COUNTERCLOCKWISE_90))
-            return "270°";
-        return "0°";
+        return String.valueOf(rot.ordinal() * 90) + "°";
     }
 
     public static class PathIdentifier {
@@ -130,13 +127,14 @@ public final class SignalBoxUtil {
             debugPointList.add(previousPoint);
             final Point nextPoint = currentPath.path.point2;
             if (previousPoint.equals(p2)) {
-                if (!checkForPreviousProtectionWay(grid, p1, passedProtectionWay))
-                    return PathwayRequestResult.getByMode(PathwayRequestMode.ALREADY_USED);
                 final ArrayList<SignalBoxNode> nodes = new ArrayList<>();
                 for (Point point = previousPoint; point != null; point = closedList.get(point)) {
                     final SignalBoxNode boxNode = modeGrid.get(point);
                     nodes.add(boxNode);
                 }
+                if (!checkForPreviousProtectionWay(grid, p1, passedProtectionWay.stream()
+                        .filter(nodes::contains).collect(Collectors.toList())))
+                    return PathwayRequestResult.getByMode(PathwayRequestMode.ALREADY_USED);
                 if (ConfigHandler.GENERAL.debugMode.get()) {
                     grid.sendDebugPointUpdates(debugPointList);
                     debugPointList.clear();
@@ -203,13 +201,14 @@ public final class SignalBoxUtil {
             final Point previousPoint = currentPath.getPoint();
             final Point nextPoint = currentPath.path.point2;
             if (previousPoint.equals(p2)) {
-                if (!checkForPreviousProtectionWay(grid, p1, passedProtectionWayNodes))
-                    return ImmutableList.of();
                 final ArrayList<SignalBoxNode> nodes = new ArrayList<>();
                 for (Point point = previousPoint; point != null; point = closedList.get(point)) {
                     final SignalBoxNode boxNode = modeGrid.get(point);
                     nodes.add(boxNode);
                 }
+                if (!checkForPreviousProtectionWay(grid, p1, passedProtectionWayNodes.stream()
+                        .filter(nodes::contains).collect(Collectors.toList())))
+                    return ImmutableList.of();
                 return ImmutableList.copyOf(nodes);
             }
             checker.previousPoint = previousPoint;
@@ -251,29 +250,38 @@ public final class SignalBoxUtil {
             if (!mode.getModeType().isValidEnd()) {
                 continue;
             }
-            final ModeSet modeSet = new ModeSet(mode, getModeRot(rotation, mode));
-            if (lastNode.has(modeSet))
-                return true;
+            for (final Rotation rot : getModeRots(rotation, mode)) {
+                final ModeSet modeSet = new ModeSet(mode, rot);
+                if (lastNode.has(modeSet))
+                    return true;
+            }
         }
         return false;
     }
 
-    private static Rotation getModeRot(final Rotation rot, final EnumGuiMode mode) {
-        if (!mode.equals(EnumGuiMode.OUT_CONNECTION))
-            return rot;
-        return rot.getRotated(Rotation.CLOCKWISE_180);
+    private static Rotation[] getModeRots(final Rotation rot, final EnumGuiMode mode) {
+        if (mode.equals(EnumGuiMode.OUT_CONNECTION))
+            return new Rotation[] {
+                    rot.getRotated(Rotation.CLOCKWISE_180)
+            };
+        if (mode.equals(EnumGuiMode.END))
+            return new Rotation[] {
+                    rot, rot.getRotated(Rotation.CLOCKWISE_180)
+            };
+        return new Rotation[] {
+                rot
+        };
     }
 
     public static boolean isPathBlocked(final SignalBoxGrid grid, final SignalBoxNode node,
             final Path path) {
         final AtomicBoolean bool = new AtomicBoolean(false);
-        node.getOption(path)
-                .ifPresent(entry -> entry.getEntry(PathEntryType.BLOCKING).ifPresent(pos -> {
+        node.getOption(path).filter(entry -> entry.containsEntry(PathEntryType.BLOCKING))
+                .ifPresent(option -> option.getEntry(PathEntryType.BLOCKING).ifPresent(pos -> {
                     if (isPowerd(grid.tile, pos)) {
                         bool.set(true);
                     }
                 }));
-
         return bool.get();
     }
 
