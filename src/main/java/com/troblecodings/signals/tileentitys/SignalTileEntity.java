@@ -21,9 +21,7 @@ import com.troblecodings.signals.handler.SignalStateHandler;
 import com.troblecodings.signals.handler.SignalStateInfo;
 import com.troblecodings.signals.models.ModelInfoWrapper;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.api.distmarker.Dist;
@@ -116,11 +114,8 @@ public class SignalTileEntity extends SyncableTileEntity implements NamableWrapp
     @OnlyIn(Dist.CLIENT)
     public void updateAnimationState(final Map<SEProperty, String> properties,
             final ChangedState state) {
-        final Level level = Minecraft.getInstance().level;
-        final boolean loadFinilizedState = state.equals(ChangedState.ADDED_TO_CACHE)
-                || state.equals(ChangedState.ADDED_TO_FILE)
-                || (state.equals(ChangedState.UPDATED) && !level.isLoaded(getBlockPos()));
-        handler.updateStates(properties, loadFinilizedState);
+        handler.updateStates(properties, state.equals(ChangedState.ADDED_TO_CACHE)
+                || state.equals(ChangedState.ADDED_TO_FILE));
     }
 
     @Override

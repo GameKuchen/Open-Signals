@@ -41,44 +41,46 @@ public class ClientSignalStateHandler implements INetworkSync {
     @Override
     public void deserializeClient(final ReadBuffer buffer) {
         final Minecraft mc = Minecraft.getInstance();
-        final ClientLevel level = mc.level;
-        final BlockPos signalPos = buffer.getBlockPos();
-        final StateInfo stateInfo = new StateInfo(level, signalPos);
-        final int signalID = buffer.getInt();
-        final ChangedState changedState = buffer.getEnumValue(ChangedState.class);
-        if (changedState.equals(ChangedState.REMOVED_FROM_CACHE)
-                || changedState.equals(ChangedState.REMOVED_FROM_FILE)) {
-            setRemoved(stateInfo);
-            return;
-        }
-        final Signal signal = Signal.getSignalByID(signalID);
-        final Map<SEProperty, String> newProperties =
-                buffer.getMapWithCombinedValueFunc(NetworkBufferWrappers.getSEPropertyFunc(signal),
-                        (buf, prop) -> prop.getObjFromID(buf.getByteToUnsignedInt()));
-        synchronized (CURRENTLY_LOADED_STATES) {
-            final Map<SEProperty, String> properties =
-                    CURRENTLY_LOADED_STATES.computeIfAbsent(stateInfo, _u -> new HashMap<>());
-            properties.putAll(newProperties);
-            CURRENTLY_LOADED_STATES.put(stateInfo, properties);
-        }
-        if (level == null)
-            return;
-        final long startTime = Calendar.getInstance().getTimeInMillis();
-        SERVICE.execute(() -> {
-            BlockEntity entity;
-            while ((entity = level.getBlockEntity(signalPos)) == null) {
-                final long currentTime = Calendar.getInstance().getTimeInMillis();
-                if (currentTime - startTime >= 5000)
-                    return;
-                continue;
-            }
-            if (!(entity instanceof SignalTileEntity))
+        mc.doRunTask(() -> {
+            final ClientLevel level = mc.level;
+            final BlockPos signalPos = buffer.getBlockPos();
+            final StateInfo stateInfo = new StateInfo(level, signalPos);
+            final int signalID = buffer.getInt();
+            final ChangedState changedState = buffer.getEnumValue(ChangedState.class);
+            if (changedState.equals(ChangedState.REMOVED_FROM_CACHE)
+                    || changedState.equals(ChangedState.REMOVED_FROM_FILE)) {
+                setRemoved(stateInfo);
                 return;
-            final BlockState state = entity.getBlockState();
-            mc.level.setBlocksDirty(signalPos, state, state);
-            entity.requestModelDataUpdate();
-            ((SignalTileEntity) entity).updateAnimationState(newProperties, changedState);
-            mc.levelRenderer.blockChanged(null, signalPos, null, null, 8);
+            }
+            final Signal signal = Signal.getSignalByID(signalID);
+            final Map<SEProperty, String> newProperties = buffer.getMapWithCombinedValueFunc(
+                    NetworkBufferWrappers.getSEPropertyFunc(signal),
+                    (buf, prop) -> prop.getObjFromID(buf.getByteToUnsignedInt()));
+            synchronized (CURRENTLY_LOADED_STATES) {
+                final Map<SEProperty, String> properties =
+                        CURRENTLY_LOADED_STATES.computeIfAbsent(stateInfo, _u -> new HashMap<>());
+                properties.putAll(newProperties);
+                CURRENTLY_LOADED_STATES.put(stateInfo, properties);
+            }
+            if (level == null)
+                return;
+            final long startTime = Calendar.getInstance().getTimeInMillis();
+            SERVICE.execute(() -> {
+                BlockEntity entity;
+                while ((entity = level.getBlockEntity(signalPos)) == null) {
+                    final long currentTime = Calendar.getInstance().getTimeInMillis();
+                    if (currentTime - startTime >= 5000)
+                        return;
+                    continue;
+                }
+                if (!(entity instanceof SignalTileEntity))
+                    return;
+                final BlockState state = entity.getBlockState();
+                mc.level.setBlocksDirty(signalPos, state, state);
+                entity.requestModelDataUpdate();
+                ((SignalTileEntity) entity).updateAnimationState(newProperties, changedState);
+                mc.levelRenderer.blockChanged(null, signalPos, null, null, 8);
+            });
         });
     }
 
