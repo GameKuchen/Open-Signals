@@ -119,7 +119,7 @@ public class SignalTileEntity extends SyncableTileEntity implements NamableWrapp
         final Level level = Minecraft.getInstance().level;
         final boolean loadFinilizedState = state.equals(ChangedState.ADDED_TO_CACHE)
                 || state.equals(ChangedState.ADDED_TO_FILE)
-                || (state.equals(ChangedState.UPDATED) && level.isLoaded(getBlockPos()));
+                || (state.equals(ChangedState.UPDATED) && !level.isLoaded(getBlockPos()));
         handler.updateStates(properties, loadFinilizedState);
     }
 
