@@ -273,16 +273,7 @@ public class SignalBoxGrid implements INetworkSaveable, ISaveable {
                     requestWay(pointEntry.getKey(), pointEntry.getValue(), type);
             if (request.wasSuccesfull()) {
                 nextPathways.remove(pointEntry);
-                if (tile != null && tile.isBlocked()) {
-                    final WriteBuffer buffer = new WriteBuffer();
-                    buffer.putEnumValue(SignalBoxNetwork.REMOVE_SAVEDPW);
-                    pointEntry.getKey().writeNetwork(buffer);
-                    pointEntry.getValue().writeNetwork(buffer);
-                    OpenSignalsMain.network.sendTo(tile.get(0).getPlayer(), buffer);
-                }
-                network.sendRemoveSavedPathway(entry.getKey(), entry.getValue());
-                toRemove.put(entry, type);
-                return;
+                network.sendRemoveSavedPathway(pointEntry.getKey(), pointEntry.getValue());
             }
         });
         executingTryNextPWs = false;

@@ -184,7 +184,7 @@ public class ModeDropDownBoxUI {
                             final BoxEntity boxEntity = UISignalBoxRendering.createSignalBoxEntity(
                                     grid, false, (rendering, point, mouseKey) -> {
                                         final SignalBoxNode node = grid.getNodeChecked(point)
-                                                .orElseGet(() -> new SignalBoxNode());
+                                                .orElseGet(() -> new SignalBoxNode(gui.network));
                                         if (mouseKey != MouseEvent.LEFT_MOUSE || node.isEmpty())
                                             return;
                                         final AtomicReference<PosIdentifier> vp =

@@ -229,7 +229,6 @@ public class PathwayData {
                         return;
                     pw.directResetOfProtectionWay();
                     pw.removeProtectionWay();
-                    grid.updateToNet(pw);
                 }));
             }).start();
             return true;
@@ -363,9 +362,9 @@ public class PathwayData {
                     entry.getEntry(PathEntryType.PRESIGNALS).orElse(new ArrayList<>());
             posIdents.removeIf(ident -> !grid.getNode(ident.getPoint()).has(ident.getModeSet()));
             this.preSignals = ImmutableList.copyOf(posIdents.stream().map(ident -> {
-                final PathOptionEntry vpEntry = grid.getNode(ident.getPoint())
-                        .getOption(ident.getModeSet())
-                        .orElse(SignalBoxFactory.getFactory().getEntry());
+                final PathOptionEntry vpEntry =
+                        grid.getNode(ident.getPoint()).getOption(ident.getModeSet())
+                                .orElse(SignalBoxFactory.getFactory().getEntry());
                 return new OtherSignalIdentifier(ident.getPoint(), ident.getModeSet(), ident.pos,
                         vpEntry.getEntry(PathEntryType.SIGNAL_REPEATER).orElse(false),
                         EnumGuiMode.VP, grid);
