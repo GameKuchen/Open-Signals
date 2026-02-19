@@ -271,6 +271,13 @@ public class GuiSignalBox extends GuiBase {
 
     private void checkForMultiplePathTypes(final SignalBoxNode start, final SignalBoxNode end) {
         final List<PathType> possibleTypes = start.getPossibleTypes(end);
+        for (final ModeSet mode : start.getModes().keySet()) {
+            if (start.getSubsidiaryState(mode) != null) {
+                infoUpdate(I18Wrapper
+                        .format("error." + PathwayRequestMode.SUBISIDIARY_ENABLED.getName()));
+                return;
+            }
+        }
         if (possibleTypes.isEmpty()) {
             infoUpdate(
                     I18Wrapper.format("error." + PathwayRequestMode.NO_EQUAL_PATH_TYPE.getName()));
@@ -695,6 +702,7 @@ public class GuiSignalBox extends GuiBase {
             });
             updateSignalState(node);
         });
+        enabledSubsidiaries.clear();
         container.enabledSubsidiaryTypes.clear();
     }
 
