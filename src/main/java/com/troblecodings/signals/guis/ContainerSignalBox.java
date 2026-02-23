@@ -59,7 +59,7 @@ public class ContainerSignalBox extends ContainerBase implements UIClientSync, I
 
     private final Map<BlockPos, LinkType> posForType = new HashMap<>();
     private SignalBoxNetworkHandler network = new SignalBoxNetworkHandler();
-    private EntityPlayer player;
+    private Player player;
 
     protected Consumer<SignalBoxNode> updateSignalState = (node) -> {
     };
@@ -126,8 +126,8 @@ public class ContainerSignalBox extends ContainerBase implements UIClientSync, I
         validInConnections.putAll(buffer.getMap(ReadBuffer.BLOCKPOS_FUNCTION,
                 b -> b.getList(ReadBuffer.getINetworkSaveableFunction(Point.class))));
         grid.getNodes().forEach(node -> {
-            final Map<ModeSet, SubsidiaryState> subsidiares = new HashMap<>(
-                    node.getSubsidiaryStates());
+            final Map<ModeSet, SubsidiaryState> subsidiares =
+                    new HashMap<>(node.getSubsidiaryStates());
             if (!subsidiares.isEmpty()) {
                 enabledSubsidiaryTypes.put(node.getPoint(), subsidiares);
             }
@@ -239,8 +239,8 @@ public class ContainerSignalBox extends ContainerBase implements UIClientSync, I
 
     protected void updateClientSubsidiary(final SignalBoxNode node, final ModeSet mode,
             final SubsidiaryState state, final boolean enable) {
-        final Map<ModeSet, SubsidiaryState> map = enabledSubsidiaryTypes
-                .computeIfAbsent(node.getPoint(), (_u) -> new HashMap<>());
+        final Map<ModeSet, SubsidiaryState> map =
+                enabledSubsidiaryTypes.computeIfAbsent(node.getPoint(), (_u) -> new HashMap<>());
         if (enable) {
             map.put(mode, state);
             node.setSubsidiaryState(mode, state);
