@@ -59,6 +59,7 @@ public class ContainerSignalBox extends ContainerBase implements UIClientSync, I
 
     private final Map<BlockPos, LinkType> posForType = new HashMap<>();
     private SignalBoxNetworkHandler network = new SignalBoxNetworkHandler();
+    private EntityPlayer player;
 
     protected Consumer<SignalBoxNode> updateSignalState = (node) -> {
     };
@@ -312,8 +313,8 @@ public class ContainerSignalBox extends ContainerBase implements UIClientSync, I
     public boolean stillValid(final Player playerIn) {
         if (tile.isBlocked() && !tile.isValid(playerIn))
             return false;
-        if (this.info.player == null) {
-            this.info.player = playerIn;
+        if (this.player == null) {
+            this.player = playerIn;
             this.tile.add(this);
         }
         return true;
