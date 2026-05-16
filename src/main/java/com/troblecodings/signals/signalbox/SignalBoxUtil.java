@@ -244,8 +244,8 @@ public final class SignalBoxUtil {
     private static boolean checkForValidEnd(final PathType type, final SignalBoxNode lastNode,
             final SignalBoxNode previous) {
         final Point delta = lastNode.getPoint().delta(previous.getPoint());
-        final Rotation rotation = SignalBoxUtil.getRotationFromDelta(delta)
-                .getRotated(Rotation.CLOCKWISE_180);
+        final Rotation rotation =
+                SignalBoxUtil.getRotationFromDelta(delta).getRotated(Rotation.CLOCKWISE_180);
         for (final EnumGuiMode mode : type.getModes()) {
             if (!mode.getModeType().isValidEnd()) {
                 continue;
@@ -286,6 +286,8 @@ public final class SignalBoxUtil {
     }
 
     private static boolean isPowerd(final SignalBoxTileEntity tile, final BlockPos pos) {
+        if (tile == null)
+            return false;
         final Level world = tile.getLevel();
         if (world == null) {
             OpenSignalsMain.getLogger()

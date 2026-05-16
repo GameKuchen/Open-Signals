@@ -199,13 +199,13 @@ public class SignalControllerTileEntity extends SyncableTileEntity
             });
             enabledStates.put(direction, map);
             if (comp.contains(RS_BOOLEAN)) {
-                currentStates[direction.ordinal()] = comp.getWrapper(RS_BOOLEAN)
-                        .getBoolean(RS_BOOLEAN);
+                currentStates[direction.ordinal()] =
+                        comp.getWrapper(RS_BOOLEAN).getBoolean(RS_BOOLEAN);
             }
         }
         final List<NBTWrapper> list = wrapper.getList(ALLSTATES);
-        final List<SEProperty> properites = linkedSignal == null ? new ArrayList<>()
-                : linkedSignal.getProperties();
+        final List<SEProperty> properites =
+                linkedSignal == null ? new ArrayList<>() : linkedSignal.getProperties();
         list.forEach(compund -> {
             final int profile = compund.getInteger(PROFILE);
             final NBTWrapper comp = compund.getWrapper(PROPERITES);
@@ -221,9 +221,9 @@ public class SignalControllerTileEntity extends SyncableTileEntity
         if (wrapper.contains(LINKED_RS_INPUT)) {
             linkedRSInput = wrapper.getBlockPos(LINKED_RS_INPUT);
         }
-        profileRSInput = (byte) (wrapper.contains(RS_INPUT_PROFILE)
-                ? wrapper.getInteger(RS_INPUT_PROFILE)
-                : -1);
+        profileRSInput =
+                (byte) (wrapper.contains(RS_INPUT_PROFILE) ? wrapper.getInteger(RS_INPUT_PROFILE)
+                        : -1);
 
     }
 
@@ -231,10 +231,19 @@ public class SignalControllerTileEntity extends SyncableTileEntity
     public void onLoad() {
         if (!level.isClientSide) {
             if (linkedSignalPosition != null && linkedSignal != null) {
-                final SignalStateInfo info = new SignalStateInfo(level, linkedSignalPosition,
-                        linkedSignal);
-                final LoadHolder<StateInfo> holder = new LoadHolder<>(
-                        new StateInfo(level, worldPosition));
+                final Block thisBlock = level.getBlockState(this.getLinkedPosition()).getBlock();
+                if (!thisBlock.equals(linkedSignal)) {
+                    OpenSignalsMain.getLogger()
+                            .error("Unlinked wrong signal data for [" + getBlockPos()
+                                    + "]! Linked Pos=" + getLinkedPos() + ", Saved block="
+                                    + linkedSignal + ", Real block=" + thisBlock);
+                    unlink();
+                    return;
+                }
+                final SignalStateInfo info =
+                        new SignalStateInfo(level, linkedSignalPosition, linkedSignal);
+                final LoadHolder<StateInfo> holder =
+                        new LoadHolder<>(new StateInfo(level, worldPosition));
                 SignalStateHandler.loadSignal(new SignalStateLoadHoler(info, holder));
                 SignalStateHandler.addListener(info, listener);
                 NameHandler.loadName(new StateLoadHolder(info.toStateInfo(), holder));
@@ -243,11 +252,11 @@ public class SignalControllerTileEntity extends SyncableTileEntity
     }
 
     public void unloadSignal() {
-        if (linkedSignalPosition != null & linkedSignal != null) {
-            final SignalStateInfo info = new SignalStateInfo(level, linkedSignalPosition,
-                    linkedSignal);
-            final LoadHolder<StateInfo> holder = new LoadHolder<>(
-                    new StateInfo(level, worldPosition));
+        if (linkedSignalPosition != null && linkedSignal != null) {
+            final SignalStateInfo info =
+                    new SignalStateInfo(level, linkedSignalPosition, linkedSignal);
+            final LoadHolder<StateInfo> holder =
+                    new LoadHolder<>(new StateInfo(level, worldPosition));
             SignalStateHandler.unloadSignal(new SignalStateLoadHoler(info, holder));
             NameHandler.unloadName(new StateLoadHolder(info.toStateInfo(), holder));
         }
@@ -278,7 +287,8 @@ public class SignalControllerTileEntity extends SyncableTileEntity
             onLoad();
             setChanged();
             return true;
-        } else if (block instanceof RedstoneInput) {
+        }
+        if (block instanceof RedstoneInput) {
             linkedRSInput = pos;
             loadChunkAndGetTile(RedstoneIOTileEntity.class, (ServerLevel) level, pos,
                     (tile, _u) -> tile.linkController(getBlockPos()));
@@ -322,8 +332,8 @@ public class SignalControllerTileEntity extends SyncableTileEntity
             if (profile == null || !allStates.containsKey(profile)) {
                 continue;
             }
-            final SignalStateInfo info = new SignalStateInfo(level, linkedSignalPosition,
-                    linkedSignal);
+            final SignalStateInfo info =
+                    new SignalStateInfo(level, linkedSignalPosition, linkedSignal);
             SignalStateHandler.runTaskWhenSignalLoaded(info, (stateInfo, _u1,
                     _u2) -> SignalStateHandler.setStates(info, allStates.get(profile)));
         }
@@ -334,8 +344,8 @@ public class SignalControllerTileEntity extends SyncableTileEntity
             return;
         final Map<SEProperty, String> properties = allStates.get(profileRSInput);
         if (properties != null) {
-            final SignalStateInfo info = new SignalStateInfo(level, linkedSignalPosition,
-                    linkedSignal);
+            final SignalStateInfo info =
+                    new SignalStateInfo(level, linkedSignalPosition, linkedSignal);
             SignalStateHandler.runTaskWhenSignalLoaded(info,
                     (stateInfo, _u1, _u2) -> SignalStateHandler.setStates(info, properties));
         }
