@@ -1,5 +1,9 @@
 # Changelog
 
+
+## [1.12.2 - 3.8.4]
+* update build script
+
 ## [1.18.2 - 3.8.3]
 * fix: signal parts for animation not rendering
 
