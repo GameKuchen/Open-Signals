@@ -1,17 +1,18 @@
 buildscript {
     repositories {
-        maven { url = 'https://maven.minecraftforge.net/' }
         maven { url = 'https://plugins.gradle.org/m2/' }
         mavenCentral()
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:6.0.+'
         classpath "gradle.plugin.com.matthewprenger:CurseGradle:1.4.0"
         classpath "com.modrinth.minotaur:Minotaur:2.+"
     }
 }
 
-apply plugin: 'net.minecraftforge.gradle'
+plugins {
+    id 'net.neoforged.moddev' version '2.0.107'
+}
+
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 apply plugin: 'com.matthewprenger.cursegradle'
@@ -40,27 +41,14 @@ sourceSets {
     }
 }
 
-minecraft {
-    mappings channel: 'official', version: project.minecraft_version
-
+neoForge {
+    version = project.neoforge_version
     accessTransformer = file(
         'src/main/resources/META-INF/accesstransformer.cfg'
     )
-
-    runs {
-        client {
-            workingDirectory project.file('run')
-            property 'forge.logging.console.level', 'debug'
-        }
-
-        server {
-            property 'forge.logging.console.level', 'debug'
-        }
-    }
 }
 
 dependencies {
-    minecraft "net.minecraftforge:forge:${project.minecraft_version}-${project.forge_version}"
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
 }
 
