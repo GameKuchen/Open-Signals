@@ -1,9 +1,21 @@
-plugins {
-    id 'java-library'
-    id 'idea'
-    id 'maven-publish'
-    id 'net.neoforged.moddev' version '2.0.146'
+buildscript {
+    repositories {
+        maven { url = 'https://maven.minecraftforge.net/' }
+        maven { url = 'https://plugins.gradle.org/m2/' }
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:6.0.+'
+        classpath "gradle.plugin.com.matthewprenger:CurseGradle:1.4.0"
+        classpath "com.modrinth.minotaur:Minotaur:2.+"
+    }
 }
+
+apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'eclipse'
+apply plugin: 'maven-publish'
+apply plugin: 'com.matthewprenger.cursegradle'
+apply plugin: 'com.modrinth.minotaur'
 
 group = project.mod_group
 version = project.mod_version
@@ -28,44 +40,35 @@ sourceSets {
     }
 }
 
-neoForge {
-    version = project.neoforge_version
-    validateAccessTransformers = true
+minecraft {
+    mappings channel: 'official', version: project.minecraft_version
 
-    accessTransformers {
-        file('src/main/resources/META-INF/accesstransformer.cfg')
-    }
+    accessTransformer = file(
+        'src/main/resources/META-INF/accesstransformer.cfg'
+    )
 
     runs {
         client {
-            client()
-            gameDirectory = project.file('run')
-            systemProperty('forge.logging.console.level', 'debug')
+            workingDirectory project.file('run')
+            property 'forge.logging.console.level', 'debug'
         }
 
         server {
-            server()
-            systemProperty('forge.logging.console.level', 'debug')
-        }
-    }
-
-    mods {
-        opensignals {
-            sourceSet sourceSets.main
+            property 'forge.logging.console.level', 'debug'
         }
     }
 }
 
 dependencies {
+    minecraft "net.minecraftforge:forge:${project.minecraft_version}-${project.forge_version}"
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
 }
 
-tasks.withType(Test).configureEach {
+test {
     useJUnitPlatform()
 }
 
 jar {
-    archiveFileName = "${project.mod_name}-${project.minecraft_version}-${project.version}.jar"
     manifest {
         attributes([
             "Specification-Title": project.mod_name,
@@ -79,18 +82,43 @@ jar {
     }
 }
 
-tasks.register('releaseArtifact') {
-    dependsOn tasks.named('jar')
+jar.finalizedBy('reobfJar')
 
-    doLast {
-        def jarTask = tasks.named('jar').get()
-        def jarFile = jarTask.archiveFile.get().asFile
-        def outDir = file("${layout.buildDirectory.getAsFile().get()}/releases")
-        outDir.mkdirs()
+def key = System.getenv("CURSETOKEN")
+if (key == null)
+    key = 'dev'
 
-        copy {
-            from jarFile
-            into outDir
-        }
+curseforge {
+    apiKey = key 
+
+    project {
+        id = project.curseforge_project_id
+
+        changelog = file("changelog.md")
+        changelogType = "markdown"
+
+        releaseType = "release"
+
+        addGameVersion project.minecraft_version
     }
+}
+
+modrinth {
+    token = System.getenv("MODRINTH_TOKEN")
+
+    projectId = project.modrinth_project_id
+
+    versionNumber = project.version
+    versionName = "${project.mod_name} ${project.version}"
+
+    uploadFile = jar
+
+    gameVersions = [project.minecraft_version]
+    loaders = [project.loader]
+
+    changelog = file("changelog.md").text
+}
+
+tasks.register("publishMods") {
+    dependsOn("curseforge", "modrinth")
 }
