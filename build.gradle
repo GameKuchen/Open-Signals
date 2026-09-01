@@ -43,7 +43,7 @@ sourceSets {
 
 neoForge {
     version = project.neoforge_version
-    accessTransformer = file(
+    accessTransformers = file(
         'src/main/resources/META-INF/accesstransformer.cfg'
     )
 }
