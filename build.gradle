@@ -65,6 +65,7 @@ tasks.withType(Test).configureEach {
 }
 
 jar {
+    archiveFileName = "${project.mod_name}-${project.minecraft_version}-${project.version}.jar"
     manifest {
         attributes([
             "Specification-Title": project.mod_name,
@@ -75,5 +76,21 @@ jar {
             "Implementation-Vendor": "troblecodings",
             "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
         ])
+    }
+}
+
+tasks.register('releaseArtifact') {
+    dependsOn tasks.named('jar')
+
+    doLast {
+        def jarTask = tasks.named('jar').get()
+        def jarFile = jarTask.archiveFile.get().asFile
+        def outDir = file("${layout.buildDirectory.getAsFile().get()}/releases")
+        outDir.mkdirs()
+
+        copy {
+            from jarFile
+            into outDir
+        }
     }
 }
